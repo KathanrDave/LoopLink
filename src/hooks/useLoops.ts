@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './useAuth';
 
@@ -22,21 +22,20 @@ export function useLoops() {
   const [loops, setLoops] = useState<Loop[]>([]);
   const [currentLoop, setCurrentLoop] = useState<Loop | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchUserLoops();
-    } else {
+  const fetchUserLoops = useCallback(async () => {
+    if (!user) {
       setLoops([]);
       setCurrentLoop(null);
       setLoading(false);
+      setInitialized(true);
+      return;
     }
-  }, [user]);
-
-  const fetchUserLoops = async () => {
-    if (!user) return;
 
     try {
+      setLoading(true);
+      
       // Fetch loops where user is a member
       const { data: memberLoops, error } = await supabase
         .from('loop_members')
@@ -57,63 +56,94 @@ export function useLoops() {
         `)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user loops:', error);
+        setLoading(false);
+        setInitialized(true);
+        return;
+      }
+
+      if (!memberLoops || memberLoops.length === 0) {
+        setLoops([]);
+        setCurrentLoop(null);
+        setLoading(false);
+        setInitialized(true);
+        return;
+      }
 
       const loopsWithData = await Promise.all(
         memberLoops.map(async (memberLoop: any) => {
           const loop = memberLoop.loops;
           
-          // Fetch members
-          const { data: members } = await supabase
-            .from('loop_members')
-            .select(`
-              user_id,
-              role,
-              profiles (
-                id,
-                name,
-                avatar,
-                reputation,
-                badges,
-                location
-              )
-            `)
-            .eq('loop_id', loop.id);
+          try {
+            // Fetch members
+            const { data: members } = await supabase
+              .from('loop_members')
+              .select(`
+                user_id,
+                role,
+                profiles (
+                  id,
+                  name,
+                  avatar,
+                  reputation,
+                  badges,
+                  location
+                )
+              `)
+              .eq('loop_id', loop.id);
 
-          // Fetch items
-          const { data: items } = await supabase
-            .from('items')
-            .select('*')
-            .eq('loop_id', loop.id);
+            // Fetch items
+            const { data: items } = await supabase
+              .from('items')
+              .select('*')
+              .eq('loop_id', loop.id);
 
-          // Fetch events
-          const { data: events } = await supabase
-            .from('events')
-            .select('*')
-            .eq('loop_id', loop.id);
+            // Fetch events
+            const { data: events } = await supabase
+              .from('events')
+              .select('*')
+              .eq('loop_id', loop.id);
 
-          return {
-            id: loop.id,
-            name: loop.name,
-            code: loop.code,
-            type: loop.type,
-            description: loop.description,
-            settings: loop.settings || {},
-            adminId: loop.admin_id,
-            subscriptionTier: loop.subscription_tier,
-            createdAt: loop.created_at,
-            members: members?.map((m: any) => ({
-              id: m.profiles.id,
-              name: m.profiles.name,
-              avatar: m.profiles.avatar,
-              reputation: m.profiles.reputation,
-              badges: m.profiles.badges || [],
-              role: m.role,
-              location: m.profiles.location
-            })) || [],
-            items: items || [],
-            events: events || []
-          };
+            return {
+              id: loop.id,
+              name: loop.name,
+              code: loop.code,
+              type: loop.type,
+              description: loop.description,
+              settings: loop.settings || {},
+              adminId: loop.admin_id,
+              subscriptionTier: loop.subscription_tier,
+              createdAt: loop.created_at,
+              members: members?.map((m: any) => ({
+                id: m.profiles?.id,
+                name: m.profiles?.name || 'Unknown',
+                avatar: m.profiles?.avatar || '👤',
+                reputation: m.profiles?.reputation || 50,
+                badges: m.profiles?.badges || [],
+                role: m.role,
+                location: m.profiles?.location
+              })).filter(m => m.id) || [],
+              items: items || [],
+              events: events || []
+            };
+          } catch (error) {
+            console.error('Error fetching loop data for loop:', loop.id, error);
+            return {
+              id: loop.id,
+              name: loop.name,
+              code: loop.code,
+              type: loop.type,
+              description: loop.description,
+              settings: loop.settings || {},
+              adminId: loop.admin_id,
+              subscriptionTier: loop.subscription_tier,
+              createdAt: loop.created_at,
+              members: [],
+              items: [],
+              events: []
+            };
+          }
         })
       );
 
@@ -127,8 +157,20 @@ export function useLoops() {
       console.error('Error fetching loops:', error);
     } finally {
       setLoading(false);
+      setInitialized(true);
     }
-  };
+  }, [user, currentLoop]);
+
+  useEffect(() => {
+    if (user && !initialized) {
+      fetchUserLoops();
+    } else if (!user) {
+      setLoops([]);
+      setCurrentLoop(null);
+      setLoading(false);
+      setInitialized(true);
+    }
+  }, [user, initialized, fetchUserLoops]);
 
   const createLoop = async (name: string, description: string, type: 'friend' | 'neighborhood' | 'organization') => {
     if (!user) throw new Error('User not authenticated');
@@ -168,6 +210,7 @@ export function useLoops() {
       if (memberError) throw memberError;
 
       // Refresh loops
+      setInitialized(false);
       await fetchUserLoops();
 
       return loop;
@@ -216,6 +259,7 @@ export function useLoops() {
       if (memberError) throw memberError;
 
       // Refresh loops
+      setInitialized(false);
       await fetchUserLoops();
 
       return loop;
@@ -242,6 +286,7 @@ export function useLoops() {
       if (error) throw error;
 
       // Refresh current loop data
+      setInitialized(false);
       await fetchUserLoops();
 
       return item;
@@ -264,6 +309,7 @@ export function useLoops() {
       if (error) throw error;
 
       // Refresh current loop data
+      setInitialized(false);
       await fetchUserLoops();
     } catch (error) {
       console.error('Error updating item:', error);
@@ -296,6 +342,7 @@ export function useLoops() {
         });
 
       // Refresh current loop data
+      setInitialized(false);
       await fetchUserLoops();
 
       return event;
@@ -319,6 +366,7 @@ export function useLoops() {
       if (error) throw error;
 
       // Refresh current loop data
+      setInitialized(false);
       await fetchUserLoops();
     } catch (error) {
       console.error('Error joining event:', error);
@@ -361,7 +409,7 @@ export function useLoops() {
   return {
     loops,
     currentLoop,
-    loading,
+    loading: loading && !initialized,
     setCurrentLoop,
     createLoop,
     joinLoop,
@@ -369,6 +417,9 @@ export function useLoops() {
     updateItem,
     addEvent,
     joinEvent,
-    refreshLoops: fetchUserLoops
+    refreshLoops: () => {
+      setInitialized(false);
+      return fetchUserLoops();
+    }
   };
 }

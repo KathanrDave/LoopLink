@@ -8,10 +8,51 @@ import NeuomorphicButton from '../components/NeuomorphicButton';
 import FloatingActionButton from '../components/FloatingActionButton';
 
 const Home = () => {
-  const { currentLoop, currentUser, subscriptionLimits } = useApp();
+  const { currentLoop, currentUser, subscriptionLimits, loopsLoading } = useApp();
 
-  if (!currentLoop || !currentUser) {
-    return <div>Loading...</div>;
+  // Show loading state
+  if (loopsLoading) {
+    return (
+      <div className="px-4 py-6 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-32 bg-gray-200 rounded"></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-20 bg-gray-200 rounded"></div>
+            <div className="h-20 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show no loops state
+  if (!currentLoop) {
+    return (
+      <div className="px-4 py-6 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+        <div className="text-center py-16">
+          <div className="text-8xl mb-6">🔗</div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">Welcome to LoopLink!</h3>
+          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            You're not part of any loops yet. Create your first loop or join an existing one to get started.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/join">
+              <NeuomorphicButton variant="primary" size="lg">
+                <div className="flex items-center space-x-2">
+                  <Plus className="w-5 h-5" />
+                  <span>Create Your First Loop</span>
+                </div>
+              </NeuomorphicButton>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <div>Loading user...</div>;
   }
 
   const recentItems = currentLoop.items.slice(0, 4);
@@ -232,7 +273,7 @@ const Home = () => {
                     <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
                       <span>{event.date}</span>
                       <span>{event.time}</span>
-                      <span>{event.attendees.length} attending</span>
+                      <span>{event.attendees?.length || 0} attending</span>
                     </div>
                   </div>
                   <div className="text-2xl">📅</div>
@@ -252,21 +293,9 @@ const Home = () => {
               <div className="text-xl">👨‍💻</div>
               <div className="flex-1">
                 <p className="text-sm text-gray-900">
-                  <span className="font-medium">Alex</span> shared a new item
+                  <span className="font-medium">Welcome to {currentLoop.name}!</span>
                 </p>
-                <p className="text-xs text-gray-500">2 hours ago</p>
-              </div>
-            </div>
-          </GlassmorphicCard>
-          
-          <GlassmorphicCard className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="text-xl">👩‍🎨</div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">Sarah</span> organized a new event
-                </p>
-                <p className="text-xs text-gray-500">1 day ago</p>
+                <p className="text-xs text-gray-500">Start sharing items and organizing events</p>
               </div>
             </div>
           </GlassmorphicCard>
