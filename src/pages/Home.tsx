@@ -1,21 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, TrendingUp, Calendar, Users, MapPin, Building2, Crown, Zap, Map, Navigation, MessageCircle, QrCode, Camera } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useModal } from '../context/ModalContext';
 import ItemCard from '../components/ItemCard';
 import GlassmorphicCard from '../components/GlassmorphicCard';
 import NeuomorphicButton from '../components/NeuomorphicButton';
 import FloatingActionButton from '../components/FloatingActionButton';
-import Chat from '../components/Chat';
-import QRGenerator from '../components/QRGenerator';
-import CameraCapture from '../components/CameraCapture';
-import { cameraService, PhotoResult } from '../services/camera';
 
 const Home = () => {
   const { currentLoop, currentUser, subscriptionLimits, loopsLoading } = useApp();
-  const [showChat, setShowChat] = useState(false);
-  const [showQR, setShowQR] = useState(false);
-  const [showCamera, setShowCamera] = useState(false);
+  const { openModal } = useModal();
 
   // Show loading state
   if (loopsLoading) {
@@ -81,11 +76,6 @@ const Home = () => {
       case 'organization': return 'from-blue-500 via-indigo-500 to-violet-500';
       default: return 'from-gray-500 to-gray-600';
     }
-  };
-
-  const handlePhotoTaken = (photo: PhotoResult) => {
-    console.log('Photo taken:', photo);
-    setShowCamera(false);
   };
 
   const LoopIcon = getLoopIcon(currentLoop.type);
@@ -162,7 +152,7 @@ const Home = () => {
             <h2 className="text-2xl font-bold text-gray-900">Quick Actions</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <NeuomorphicButton
-                onClick={() => setShowChat(true)}
+                onClick={() => openModal('chat', { roomId: currentLoop.id })}
                 variant="secondary"
                 className="flex flex-col items-center space-y-3 p-6 h-auto"
               >
@@ -172,7 +162,15 @@ const Home = () => {
 
               {currentLoop.type === 'organization' && (
                 <NeuomorphicButton
-                  onClick={() => setShowQR(true)}
+                  onClick={() => openModal('qr', { 
+                    type: 'profile',
+                    data: {
+                      socialLinks: {},
+                      website: '',
+                      address: '',
+                      phone: ''
+                    }
+                  })}
                   variant="secondary"
                   className="flex flex-col items-center space-y-3 p-6 h-auto"
                 >
@@ -182,7 +180,11 @@ const Home = () => {
               )}
 
               <NeuomorphicButton
-                onClick={() => setShowCamera(true)}
+                onClick={() => openModal('camera', { 
+                  onPhotoTaken: (photo: any) => {
+                    console.log('Photo taken:', photo);
+                  }
+                })}
                 variant="secondary"
                 className="flex flex-col items-center space-y-3 p-6 h-auto"
               >
@@ -315,9 +317,12 @@ const Home = () => {
                     {currentLoop.members.length}/{subscriptionLimits.maxMembers} members • 
                     {currentLoop.events.length}/{subscriptionLimits.maxEvents} events this month
                   </p>
-                  <Link to="/upgrade" className="text-sm text-amber-800 font-medium hover:text-amber-900 transition-colors">
+                  <button 
+                    onClick={() => openModal('subscription', { currentPlan: currentLoop.subscriptionTier })}
+                    className="text-sm text-amber-800 font-medium hover:text-amber-900 transition-colors"
+                  >
                     Upgrade to Pro →
-                  </Link>
+                  </button>
                 </div>
               </div>
             </GlassmorphicCard>
@@ -383,33 +388,6 @@ const Home = () => {
           }
         }}
         gradient={getLoopGradient(currentLoop.type)}
-      />
-
-      {/* Chat Component */}
-      <Chat 
-        isOpen={showChat} 
-        onClose={() => setShowChat(false)}
-        roomId={currentLoop.id}
-      />
-
-      {/* QR Generator */}
-      <QRGenerator
-        isOpen={showQR}
-        onClose={() => setShowQR(false)}
-        type="profile"
-        data={{
-          socialLinks: {},
-          website: '',
-          address: '',
-          phone: ''
-        }}
-      />
-
-      {/* Camera Capture */}
-      <CameraCapture
-        isOpen={showCamera}
-        onClose={() => setShowCamera(false)}
-        onPhotoTaken={handlePhotoTaken}
       />
     </div>
   );

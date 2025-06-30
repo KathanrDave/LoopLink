@@ -20,6 +20,7 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const chatRoomId = roomId || currentLoop?.id || '';
 
@@ -27,11 +28,35 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
     if (isOpen && chatRoomId && currentUser) {
       initializeChat();
     }
+    
+    return () => {
+      // Cleanup when component unmounts or modal closes
+      if (chatRoomId) {
+        chatService.leaveRoom(chatRoomId, currentUser?.id || '');
+      }
+    };
   }, [isOpen, chatRoomId, currentUser]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Handle click outside to close modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   const initializeChat = async () => {
     try {
@@ -128,12 +153,12 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center p-4">
-      <GlassmorphicCard className="w-full max-w-md h-[80vh] md:h-[600px] flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-end md:items-center justify-center p-4">
+      <GlassmorphicCard ref={modalRef} className="w-full max-w-md h-[80vh] md:h-[600px] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-white/20">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
               <span className="text-white text-lg">💬</span>
             </div>
             <div>
@@ -142,10 +167,10 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <button className="p-2 text-gray-600 hover:text-indigo-600 transition-colors">
               <Phone className="w-4 h-4" />
             </button>
-            <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <button className="p-2 text-gray-600 hover:text-indigo-600 transition-colors">
               <Video className="w-4 h-4" />
             </button>
             <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
@@ -161,10 +186,10 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
           {loading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+              <div className="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full"></div>
             </div>
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-500">
@@ -183,7 +208,7 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
                 <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                   <div className={`flex items-end space-x-2 max-w-[80%] ${isOwn ? 'flex-row-reverse space-x-reverse' : ''}`}>
                     {!isOwn && showAvatar && (
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-sm">
+                      <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-sm shadow-sm">
                         {getUserAvatar(message.userId)}
                       </div>
                     )}
@@ -191,7 +216,7 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
                     
                     <div className={`rounded-2xl px-4 py-2 ${
                       isOwn 
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' 
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' 
                         : 'bg-white/50 text-gray-900'
                     }`}>
                       {!isOwn && showAvatar && (
@@ -232,7 +257,7 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
         {/* Input */}
         <div className="p-4 border-t border-white/20">
           <div className="flex items-center space-x-2">
-            <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors">
+            <button className="p-2 text-gray-600 hover:text-indigo-600 transition-colors">
               <Paperclip className="w-4 h-4" />
             </button>
             <div className="flex-1 relative">
@@ -243,9 +268,9 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
                 onChange={(e) => handleTyping(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type a message..."
-                className="w-full px-4 py-2 bg-white/50 border border-white/20 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+                className="w-full px-4 py-2 bg-white/50 border border-white/20 rounded-full focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900 placeholder-gray-500"
               />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-600 hover:text-blue-600 transition-colors">
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-gray-600 hover:text-indigo-600 transition-colors">
                 <Smile className="w-4 h-4" />
               </button>
             </div>

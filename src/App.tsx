@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
+import { ModalProvider } from './context/ModalContext';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
 import Home from './pages/Home';
@@ -14,6 +15,7 @@ import JoinCommunity from './pages/JoinCommunity';
 import NeighborhoodMap from './pages/NeighborhoodMap';
 import AuthPage from './pages/AuthPage';
 import { useAuth } from './hooks/useAuth';
+import ModalManager from './components/modals/ModalManager';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -59,9 +61,12 @@ function AppRoutes() {
 function App() {
   return (
     <AppProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
+      <ModalProvider>
+        <Router>
+          <AppRoutes />
+          <ModalManager />
+        </Router>
+      </ModalProvider>
     </AppProvider>
   );
 }

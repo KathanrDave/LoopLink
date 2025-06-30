@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Check, Zap, Crown, Building } from 'lucide-react';
 import { subscriptionPlans, stripeService } from '../services/stripe';
 import { useApp } from '../context/AppContext';
@@ -19,6 +19,24 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
   const { currentLoop } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -51,15 +69,15 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
   const getPlanGradient = (planId: string) => {
     switch (planId) {
       case 'free': return 'from-gray-500 to-gray-600';
-      case 'pro': return 'from-blue-500 to-purple-600';
+      case 'pro': return 'from-indigo-500 to-purple-600';
       case 'enterprise': return 'from-purple-600 to-pink-600';
       default: return 'from-gray-500 to-gray-600';
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <GlassmorphicCard className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+      <GlassmorphicCard ref={modalRef} className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -87,16 +105,16 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
                   key={plan.id}
                   className={`relative bg-white/50 backdrop-blur-sm rounded-2xl p-6 border-2 transition-all duration-300 hover:scale-105 ${
                     isCurrentPlan 
-                      ? 'border-green-400 ring-2 ring-green-400/50' 
+                      ? 'border-emerald-400 ring-2 ring-emerald-400/50' 
                       : isPopular
-                      ? 'border-blue-400 ring-2 ring-blue-400/50'
-                      : 'border-white/20 hover:border-blue-300'
+                      ? 'border-indigo-400 ring-2 ring-indigo-400/50'
+                      : 'border-white/20 hover:border-indigo-300'
                   }`}
                 >
                   {/* Popular Badge */}
                   {isPopular && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
                         Most Popular
                       </div>
                     </div>
@@ -105,7 +123,7 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
                   {/* Current Plan Badge */}
                   {isCurrentPlan && (
                     <div className="absolute -top-3 right-4">
-                      <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
                         Current Plan
                       </div>
                     </div>
@@ -128,8 +146,8 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
                     <div className="space-y-3">
                       {plan.features.map((feature, index) => (
                         <div key={index} className="flex items-center space-x-3">
-                          <div className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
-                            <Check className="w-3 h-3 text-green-600" />
+                          <div className="w-5 h-5 bg-emerald-100 rounded-full flex items-center justify-center">
+                            <Check className="w-3 h-3 text-emerald-600" />
                           </div>
                           <span className="text-sm text-gray-700">{feature}</span>
                         </div>
@@ -139,7 +157,7 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
                     {/* Action Button */}
                     <div className="pt-4">
                       {isCurrentPlan ? (
-                        <div className="w-full bg-green-100 text-green-800 py-3 px-6 rounded-xl font-semibold text-center">
+                        <div className="w-full bg-emerald-100 text-emerald-800 py-3 px-6 rounded-xl font-semibold text-center">
                           Current Plan
                         </div>
                       ) : (
@@ -205,7 +223,7 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
                     {subscriptionPlans.map(plan => (
                       <td key={plan.id} className="text-center p-4">
                         {plan.hasAdvancedFeatures ? (
-                          <Check className="w-5 h-5 text-green-600 mx-auto" />
+                          <Check className="w-5 h-5 text-emerald-600 mx-auto" />
                         ) : (
                           <X className="w-5 h-5 text-gray-400 mx-auto" />
                         )}
@@ -217,7 +235,7 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
                     {subscriptionPlans.map(plan => (
                       <td key={plan.id} className="text-center p-4">
                         {plan.hasAnalytics ? (
-                          <Check className="w-5 h-5 text-green-600 mx-auto" />
+                          <Check className="w-5 h-5 text-emerald-600 mx-auto" />
                         ) : (
                           <X className="w-5 h-5 text-gray-400 mx-auto" />
                         )}
@@ -229,7 +247,7 @@ const SubscriptionUpgrade: React.FC<SubscriptionUpgradeProps> = ({
                     {subscriptionPlans.map(plan => (
                       <td key={plan.id} className="text-center p-4">
                         {plan.hasCustomBranding ? (
-                          <Check className="w-5 h-5 text-green-600 mx-auto" />
+                          <Check className="w-5 h-5 text-emerald-600 mx-auto" />
                         ) : (
                           <X className="w-5 h-5 text-gray-400 mx-auto" />
                         )}

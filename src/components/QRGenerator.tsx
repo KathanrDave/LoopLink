@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Download, Share2, Copy, X, Building2, Users, MapPin } from 'lucide-react';
 import QRCode from 'qrcode';
 import { useApp } from '../context/AppContext';
@@ -17,12 +17,30 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ isOpen, onClose, type, data }
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       generateQR();
     }
   }, [isOpen, type, data]);
+
+  // Handle click outside to close modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   const generateQR = async () => {
     if (!currentLoop) return;
@@ -198,15 +216,15 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ isOpen, onClose, type, data }
   const IconComponent = getIcon();
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <GlassmorphicCard className="w-full max-w-md">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+      <GlassmorphicCard ref={modalRef} className="w-full max-w-md">
         <div className="p-6 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
                 {typeof IconComponent === 'string' ? (
-                  <span className="text-lg">{IconComponent}</span>
+                  <span className="text-lg text-white">{IconComponent}</span>
                 ) : (
                   <IconComponent className="w-5 h-5 text-white" />
                 )}
@@ -228,7 +246,7 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ isOpen, onClose, type, data }
           <div className="text-center">
             {loading ? (
               <div className="w-64 h-64 bg-gray-100 rounded-xl flex items-center justify-center mx-auto">
-                <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                <div className="animate-spin w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full"></div>
               </div>
             ) : qrDataUrl ? (
               <div className="bg-white p-4 rounded-xl shadow-inner mx-auto inline-block">
@@ -250,20 +268,20 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ isOpen, onClose, type, data }
 
           {/* Organization Profile Details */}
           {type === 'profile' && currentLoop?.type === 'organization' && (
-            <div className="bg-blue-50 rounded-xl p-4 space-y-3">
-              <h4 className="font-semibold text-blue-900">Organization Details</h4>
+            <div className="bg-indigo-50 rounded-xl p-4 space-y-3">
+              <h4 className="font-semibold text-indigo-900">Organization Details</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-blue-700">Members:</span>
-                  <span className="text-blue-900 font-medium">{currentLoop.members.length}</span>
+                  <span className="text-indigo-700">Members:</span>
+                  <span className="text-indigo-900 font-medium">{currentLoop.members.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-blue-700">Loop Code:</span>
-                  <span className="text-blue-900 font-mono">{currentLoop.code}</span>
+                  <span className="text-indigo-700">Loop Code:</span>
+                  <span className="text-indigo-900 font-mono">{currentLoop.code}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-blue-700">Admin:</span>
-                  <span className="text-blue-900 font-medium">{currentUser?.name}</span>
+                  <span className="text-indigo-700">Admin:</span>
+                  <span className="text-indigo-900 font-medium">{currentUser?.name}</span>
                 </div>
               </div>
             </div>
