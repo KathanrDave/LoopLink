@@ -168,7 +168,7 @@ const Landing = () => {
             <a href="#pricing" className="text-gray-300 hover:text-white transition-colors font-medium">Pricing</a>
             <a href="#testimonials" className="text-gray-300 hover:text-white transition-colors font-medium">Stories</a>
             <NeuomorphicButton variant="primary" size="sm">
-              <Link to="/join" className="flex items-center space-x-2">
+              <Link to="/auth" className="flex items-center space-x-2">
                 <span>Get Started</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
@@ -199,7 +199,7 @@ const Landing = () => {
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <NeuomorphicButton variant="primary" size="lg" className="group">
-                <Link to="/join" className="flex items-center space-x-3">
+                <Link to="/auth" className="flex items-center space-x-3">
                   <Sparkles className="w-6 h-6 group-hover:animate-spin" />
                   <span>Start Your Loop Free</span>
                   <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
@@ -280,7 +280,7 @@ const Landing = () => {
                       variant="primary" 
                       className={`w-full bg-gradient-to-r ${loop.gradient} hover:shadow-2xl`}
                     >
-                      <Link to="/join" className="flex items-center justify-center space-x-2">
+                      <Link to="/auth" className="flex items-center justify-center space-x-2">
                         <span>Create {loop.title}</span>
                         <ArrowRight className="w-4 h-4" />
                       </Link>
@@ -405,7 +405,7 @@ const Landing = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <NeuomorphicButton variant="primary" size="lg" className="group">
-                  <Link to="/join" className="flex items-center space-x-3">
+                  <Link to="/auth" className="flex items-center space-x-3">
                     <Sparkles className="w-6 h-6 group-hover:animate-spin" />
                     <span>Start Your Loop Free</span>
                     <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />

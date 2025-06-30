@@ -12,30 +12,55 @@ import CreateItem from './pages/CreateItem';
 import CreateEvent from './pages/CreateEvent';
 import JoinCommunity from './pages/JoinCommunity';
 import NeighborhoodMap from './pages/NeighborhoodMap';
+import AuthPage from './pages/AuthPage';
+import { useAuth } from './hooks/useAuth';
+
+function AppRoutes() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/join" element={<JoinCommunity />} />
+      
+      {/* Protected app routes */}
+      <Route path="/app" element={
+        user ? <Layout /> : <Navigate to="/auth" replace />
+      }>
+        <Route index element={<Home />} />
+        <Route path="share" element={<Share />} />
+        <Route path="events" element={<Events />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="map" element={<NeighborhoodMap />} />
+        <Route path="item/:id" element={<ItemDetail />} />
+        <Route path="create-item" element={<CreateItem />} />
+        <Route path="create-event" element={<CreateEvent />} />
+      </Route>
+
+      {/* Catch all - redirect to landing */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <AppProvider>
       <Router>
-        <Routes>
-          {/* Landing page - redirect to app */}
-          <Route path="/" element={<Navigate to="/app" replace />} />
-          
-          {/* Join community page */}
-          <Route path="/join" element={<JoinCommunity />} />
-          
-          {/* Main app routes */}
-          <Route path="/app" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="share" element={<Share />} />
-            <Route path="events" element={<Events />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="map" element={<NeighborhoodMap />} />
-            <Route path="item/:id" element={<ItemDetail />} />
-            <Route path="create-item" element={<CreateItem />} />
-            <Route path="create-event" element={<CreateEvent />} />
-          </Route>
-        </Routes>
+        <AppRoutes />
       </Router>
     </AppProvider>
   );

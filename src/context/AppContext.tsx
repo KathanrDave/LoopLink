@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAuth } from '../hooks/useAuth';
 
 export interface User {
   id: string;
@@ -85,6 +86,7 @@ interface AppContextType {
   currentUser: User | null;
   currentLoop: Loop | null;
   userLoops: Loop[];
+  loopsLoading: boolean;
   setCurrentUser: (user: User) => void;
   setCurrentLoop: (loop: Loop) => void;
   addLoop: (loop: Loop) => void;
@@ -285,9 +287,27 @@ const demoLoops: Loop[] = [
 ];
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<User | null>(demoUsers[0]);
-  const [currentLoop, setCurrentLoop] = useState<Loop | null>(demoLoops[1]);
-  const [userLoops, setUserLoops] = useState<Loop[]>(demoLoops);
+  const { user } = useAuth();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentLoop, setCurrentLoop] = useState<Loop | null>(null);
+  const [userLoops, setUserLoops] = useState<Loop[]>([]);
+  const [loopsLoading, setLoopsLoading] = useState(true);
+
+  // Sync auth user with app user
+  useEffect(() => {
+    if (user) {
+      setCurrentUser(user);
+      // Load user's loops
+      setUserLoops(demoLoops);
+      setCurrentLoop(demoLoops[1]); // Default to neighborhood loop
+      setLoopsLoading(false);
+    } else {
+      setCurrentUser(null);
+      setCurrentLoop(null);
+      setUserLoops([]);
+      setLoopsLoading(false);
+    }
+  }, [user]);
 
   const getSubscriptionLimits = (tier: string) => {
     switch (tier) {
@@ -470,6 +490,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       currentUser,
       currentLoop,
       userLoops,
+      loopsLoading,
       setCurrentUser,
       setCurrentLoop: (loop) => {
         setCurrentLoop(loop);

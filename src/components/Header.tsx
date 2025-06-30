@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { ChevronDown, Bell, Users, MapPin, Building2 } from 'lucide-react';
+import { ChevronDown, Bell, Users, MapPin, Building2, LogOut } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const { currentUser, currentLoop, userLoops, setCurrentLoop } = useApp();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [showLoopSelector, setShowLoopSelector] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const getLoopIcon = (type: string) => {
     switch (type) {
@@ -13,15 +17,6 @@ const Header = () => {
       case 'neighborhood': return MapPin;
       case 'organization': return Building2;
       default: return Users;
-    }
-  };
-
-  const getLoopColor = (type: string) => {
-    switch (type) {
-      case 'friend': return 'text-purple-600 bg-purple-100';
-      case 'neighborhood': return 'text-green-600 bg-green-100';
-      case 'organization': return 'text-blue-600 bg-blue-100';
-      default: return 'text-gray-600 bg-gray-100';
     }
   };
 
@@ -37,6 +32,11 @@ const Header = () => {
   const handleLoopChange = (loop: any) => {
     setCurrentLoop(loop);
     setShowLoopSelector(false);
+  };
+
+  const handleSignOut = () => {
+    signOut();
+    navigate('/');
   };
 
   if (!currentLoop) return null;
@@ -119,18 +119,58 @@ const Header = () => {
               <Bell className="w-5 h-5" />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
             </button>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-lg shadow-lg hover:scale-105 transition-transform cursor-pointer">
-              {currentUser?.avatar || '👤'}
+            
+            <div className="relative">
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-lg shadow-lg hover:scale-105 transition-transform cursor-pointer"
+              >
+                {currentUser?.avatar || '👤'}
+              </button>
+
+              {/* User Menu Dropdown */}
+              {showUserMenu && (
+                <div className="absolute top-full right-0 mt-2 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 py-2 z-50">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="font-semibold text-gray-900">{currentUser?.name}</p>
+                    <p className="text-sm text-gray-600">{currentUser?.email}</p>
+                  </div>
+                  
+                  <div className="py-2">
+                    <Link
+                      to="/app/profile"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center">
+                        <span className="text-white text-sm">{currentUser?.avatar}</span>
+                      </div>
+                      <span>View Profile</span>
+                    </Link>
+                    
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Click outside to close dropdown */}
-      {showLoopSelector && (
+      {/* Click outside to close dropdowns */}
+      {(showLoopSelector || showUserMenu) && (
         <div
           className="fixed inset-0 z-30"
-          onClick={() => setShowLoopSelector(false)}
+          onClick={() => {
+            setShowLoopSelector(false);
+            setShowUserMenu(false);
+          }}
         />
       )}
     </header>
