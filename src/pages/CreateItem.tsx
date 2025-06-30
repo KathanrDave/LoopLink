@@ -30,7 +30,7 @@ const CreateItem = () => {
     addItem({
       ...formData,
       status: 'available',
-      owner: currentUser.id,
+      owner_id: currentUser.id,
       image: categoryEmojis[formData.category] || '📦'
     });
 
@@ -47,7 +47,6 @@ const CreateItem = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="px-4 py-6 bg-white border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <Link to="/app/share" className="p-2 -ml-2 text-gray-600">
@@ -58,7 +57,6 @@ const CreateItem = () => {
       </header>
 
       <form onSubmit={handleSubmit} className="px-4 py-6 space-y-6">
-        {/* Photo Upload */}
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Item Photo
@@ -78,7 +76,6 @@ const CreateItem = () => {
           </div>
         </div>
 
-        {/* Item Details */}
         <div className="bg-white rounded-xl p-4 shadow-sm space-y-4">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -133,7 +130,6 @@ const CreateItem = () => {
           </div>
         </div>
 
-        {/* Sharing Guidelines */}
         <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
           <h3 className="font-semibold text-blue-900 mb-2">Sharing Guidelines</h3>
           <ul className="text-sm text-blue-800 space-y-1">
@@ -144,7 +140,6 @@ const CreateItem = () => {
           </ul>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"

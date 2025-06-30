@@ -1,10 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
-import AuthGuard from './components/AuthGuard';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
-import Auth from './pages/Auth';
 import Home from './pages/Home';
 import Share from './pages/Share';
 import Events from './pages/Events';
@@ -20,31 +18,14 @@ function App() {
     <AppProvider>
       <Router>
         <Routes>
-          {/* Public routes */}
-          <Route path="/" element={
-            <AuthGuard requireAuth={false}>
-              <Landing />
-            </AuthGuard>
-          } />
+          {/* Landing page - redirect to app */}
+          <Route path="/" element={<Navigate to="/app" replace />} />
           
-          <Route path="/auth" element={
-            <AuthGuard requireAuth={false}>
-              <Auth />
-            </AuthGuard>
-          } />
+          {/* Join community page */}
+          <Route path="/join" element={<JoinCommunity />} />
           
-          <Route path="/join" element={
-            <AuthGuard requireAuth={false}>
-              <JoinCommunity />
-            </AuthGuard>
-          } />
-
-          {/* Protected routes */}
-          <Route path="/app" element={
-            <AuthGuard requireAuth={true}>
-              <Layout />
-            </AuthGuard>
-          }>
+          {/* Main app routes */}
+          <Route path="/app" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="share" element={<Share />} />
             <Route path="events" element={<Events />} />

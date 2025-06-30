@@ -12,7 +12,7 @@ const CreateEvent = () => {
     date: '',
     time: '',
     location: '',
-    maxAttendees: ''
+    max_attendees: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -21,9 +21,9 @@ const CreateEvent = () => {
 
     addEvent({
       ...formData,
-      organizer: currentUser.id,
-      attendees: [currentUser.id], // Organizer automatically joins
-      maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : undefined
+      organizer_id: currentUser.id,
+      attendees: [currentUser.id],
+      max_attendees: formData.max_attendees ? parseInt(formData.max_attendees) : undefined
     });
 
     navigate('/app/events');
@@ -37,12 +37,10 @@ const CreateEvent = () => {
     }));
   };
 
-  // Get today's date for min date input
   const today = new Date().toISOString().split('T')[0];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="px-4 py-6 bg-white border-b border-gray-200">
         <div className="flex items-center space-x-3">
           <Link to="/app/events" className="p-2 -ml-2 text-gray-600">
@@ -53,7 +51,6 @@ const CreateEvent = () => {
       </header>
 
       <form onSubmit={handleSubmit} className="px-4 py-6 space-y-6">
-        {/* Event Details */}
         <div className="bg-white rounded-xl p-4 shadow-sm space-y-4">
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -88,7 +85,6 @@ const CreateEvent = () => {
           </div>
         </div>
 
-        {/* Date & Time */}
         <div className="bg-white rounded-xl p-4 shadow-sm space-y-4">
           <h3 className="font-semibold text-gray-900 flex items-center space-x-2">
             <Calendar className="w-4 h-4" />
@@ -129,7 +125,6 @@ const CreateEvent = () => {
           </div>
         </div>
 
-        {/* Location */}
         <div className="bg-white rounded-xl p-4 shadow-sm space-y-4">
           <h3 className="font-semibold text-gray-900 flex items-center space-x-2">
             <MapPin className="w-4 h-4" />
@@ -153,7 +148,6 @@ const CreateEvent = () => {
           </div>
         </div>
 
-        {/* Capacity */}
         <div className="bg-white rounded-xl p-4 shadow-sm space-y-4">
           <h3 className="font-semibold text-gray-900 flex items-center space-x-2">
             <Users className="w-4 h-4" />
@@ -161,14 +155,14 @@ const CreateEvent = () => {
           </h3>
           
           <div>
-            <label htmlFor="maxAttendees" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="max_attendees" className="block text-sm font-medium text-gray-700 mb-2">
               Maximum Attendees (optional)
             </label>
             <input
               type="number"
-              id="maxAttendees"
-              name="maxAttendees"
-              value={formData.maxAttendees}
+              id="max_attendees"
+              name="max_attendees"
+              value={formData.max_attendees}
               onChange={handleChange}
               placeholder="Leave empty for unlimited"
               min="1"
@@ -181,7 +175,6 @@ const CreateEvent = () => {
           </div>
         </div>
 
-        {/* Event Guidelines */}
         <div className="bg-green-50 rounded-xl p-4 border border-green-200">
           <h3 className="font-semibold text-green-900 mb-2">Event Guidelines</h3>
           <ul className="text-sm text-green-800 space-y-1">
@@ -192,7 +185,6 @@ const CreateEvent = () => {
           </ul>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-green-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
