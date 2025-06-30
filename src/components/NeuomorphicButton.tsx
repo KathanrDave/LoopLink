@@ -3,7 +3,7 @@ import React from 'react';
 interface NeuomorphicButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'accent';
+  variant?: 'primary' | 'secondary' | 'accent' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   disabled?: boolean;
@@ -20,33 +20,40 @@ const NeuomorphicButton: React.FC<NeuomorphicButtonProps> = ({
   type = 'button'
 }) => {
   const baseClasses = `
-    relative overflow-hidden font-semibold transition-all duration-300 
+    relative overflow-hidden font-medium transition-all duration-300 
     transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
     focus:outline-none focus:ring-4 focus:ring-opacity-50
+    border-0 cursor-pointer
   `;
 
   const variants = {
     primary: `
-      bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500
-      text-white shadow-lg hover:shadow-xl
-      before:absolute before:inset-0 before:bg-gradient-to-br 
+      bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700
+      text-white shadow-elegant hover:shadow-elegant-lg
+      hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600
+      focus:ring-indigo-500/50
+      before:absolute before:inset-0 before:bg-gradient-to-r 
       before:from-white/20 before:to-transparent before:opacity-0 
       hover:before:opacity-100 before:transition-opacity before:duration-300
-      focus:ring-blue-500
     `,
     secondary: `
-      bg-gradient-to-br from-gray-100 to-gray-200
-      text-gray-800 shadow-inner hover:shadow-lg
-      border border-gray-300/50
-      focus:ring-gray-400
+      bg-white/10 backdrop-blur-xl border border-white/20
+      text-gray-700 shadow-elegant hover:shadow-elegant-lg
+      hover:bg-white/20 hover:border-white/30
+      focus:ring-gray-400/50
     `,
     accent: `
-      bg-gradient-to-br from-emerald-400 to-cyan-400
-      text-white shadow-lg hover:shadow-xl
-      before:absolute before:inset-0 before:bg-gradient-to-br 
+      bg-gradient-to-r from-cyan-500 to-blue-600
+      text-white shadow-elegant hover:shadow-elegant-lg
+      hover:from-cyan-400 hover:to-blue-500
+      focus:ring-cyan-500/50
+      before:absolute before:inset-0 before:bg-gradient-to-r 
       before:from-white/20 before:to-transparent before:opacity-0 
       hover:before:opacity-100 before:transition-opacity before:duration-300
-      focus:ring-emerald-500
+    `,
+    ghost: `
+      bg-transparent text-gray-600 hover:text-gray-900
+      hover:bg-gray-100/50 focus:ring-gray-400/50
     `
   };
 

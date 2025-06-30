@@ -20,13 +20,13 @@ const Home = () => {
   // Show loading state
   if (loopsLoading) {
     return (
-      <div className="px-4 py-6 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+      <div className="px-6 py-8 space-y-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-32 bg-gray-200 rounded"></div>
+          <div className="h-32 bg-gray-200 rounded-2xl"></div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="h-20 bg-gray-200 rounded"></div>
-            <div className="h-20 bg-gray-200 rounded"></div>
+            <div className="h-20 bg-gray-200 rounded-xl"></div>
+            <div className="h-20 bg-gray-200 rounded-xl"></div>
           </div>
         </div>
       </div>
@@ -36,11 +36,11 @@ const Home = () => {
   // Show no loops state
   if (!currentLoop) {
     return (
-      <div className="px-4 py-6 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
-        <div className="text-center py-16">
-          <div className="text-8xl mb-6">🔗</div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">Welcome to LoopLink!</h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
+      <div className="px-6 py-8 space-y-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+        <div className="text-center py-20">
+          <div className="text-8xl mb-8">🔗</div>
+          <h3 className="text-3xl font-bold text-gray-900 mb-4">Welcome to LoopLink!</h3>
+          <p className="text-gray-600 mb-8 max-w-md mx-auto text-lg leading-relaxed">
             You're not part of any loops yet. Create your first loop or join an existing one to get started.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -87,67 +87,66 @@ const Home = () => {
 
   const handlePhotoTaken = (photo: PhotoResult) => {
     console.log('Photo taken:', photo);
-    // Handle the photo - could upload to storage, add to item, etc.
     setShowCamera(false);
   };
 
   const LoopIcon = getLoopIcon(currentLoop.type);
 
   return (
-    <div className="px-4 py-6 space-y-6 bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <div className="px-6 py-8 space-y-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
       {/* Welcome Section */}
-      <div className="space-y-6">
+      <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-            Welcome back, {currentUser.name.split(' ')[0]}! ✨
+          <h1 className="text-4xl font-bold text-gradient mb-2">
+            Welcome back, {currentUser.name.split(' ')[0]}!
           </h1>
-          <p className="text-gray-600 mt-1">Here's what's happening in your {currentLoop.type} loop</p>
+          <p className="text-gray-600 text-lg">Here's what's happening in your {currentLoop.type} loop</p>
         </div>
 
         {/* Hero Loop Card */}
         <GlassmorphicCard 
-          className={`p-6 bg-gradient-to-br ${getLoopGradient(currentLoop.type)} text-white relative overflow-hidden`}
-          gradient="from-white/10 to-white/5"
+          className={`p-8 bg-gradient-to-br ${getLoopGradient(currentLoop.type)} text-white relative overflow-hidden`}
+          variant="primary"
         >
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-16 translate-x-16"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-12 -translate-x-12"></div>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-20 translate-x-20"></div>
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-16 -translate-x-16"></div>
           </div>
           
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <LoopIcon className="w-7 h-7" />
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-5">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center shadow-elegant">
+                  <LoopIcon className="w-8 h-8" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">{currentLoop.name}</h2>
-                  <p className="text-white/80 capitalize">{currentLoop.type} Loop</p>
+                  <h2 className="text-3xl font-bold">{currentLoop.name}</h2>
+                  <p className="text-white/80 capitalize text-lg">{currentLoop.type} Loop</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
                 {currentLoop.subscriptionTier !== 'free' && (
-                  <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
-                    <Crown className="w-4 h-4" />
+                  <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-5 py-2">
+                    <Crown className="w-5 h-5" />
                     <span className="text-sm font-medium capitalize">{currentLoop.subscriptionTier}</span>
                   </div>
                 )}
               </div>
             </div>
             
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-8">
               <div className="text-center">
-                <p className="text-3xl font-bold">{currentLoop.members.length}</p>
-                <p className="text-sm text-white/80">Members</p>
+                <p className="text-4xl font-bold mb-1">{currentLoop.members.length}</p>
+                <p className="text-sm text-white/80 font-medium">Members</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold">{currentLoop.items.length}</p>
-                <p className="text-sm text-white/80">Items</p>
+                <p className="text-4xl font-bold mb-1">{currentLoop.items.length}</p>
+                <p className="text-sm text-white/80 font-medium">Items</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold">{currentLoop.events.length}</p>
-                <p className="text-sm text-white/80">Events</p>
+                <p className="text-4xl font-bold mb-1">{currentLoop.events.length}</p>
+                <p className="text-sm text-white/80 font-medium">Events</p>
               </div>
             </div>
           </div>
@@ -158,9 +157,9 @@ const Home = () => {
           <NeuomorphicButton
             onClick={() => setShowChat(true)}
             variant="secondary"
-            className="flex flex-col items-center space-y-2 p-4"
+            className="flex flex-col items-center space-y-3 p-6 h-auto"
           >
-            <MessageCircle className="w-6 h-6 text-blue-600" />
+            <MessageCircle className="w-7 h-7 text-indigo-600" />
             <span className="text-sm font-medium">Chat</span>
           </NeuomorphicButton>
 
@@ -168,9 +167,9 @@ const Home = () => {
             <NeuomorphicButton
               onClick={() => setShowQR(true)}
               variant="secondary"
-              className="flex flex-col items-center space-y-2 p-4"
+              className="flex flex-col items-center space-y-3 p-6 h-auto"
             >
-              <QrCode className="w-6 h-6 text-purple-600" />
+              <QrCode className="w-7 h-7 text-purple-600" />
               <span className="text-sm font-medium">QR Code</span>
             </NeuomorphicButton>
           )}
@@ -178,9 +177,9 @@ const Home = () => {
           <NeuomorphicButton
             onClick={() => setShowCamera(true)}
             variant="secondary"
-            className="flex flex-col items-center space-y-2 p-4"
+            className="flex flex-col items-center space-y-3 p-6 h-auto"
           >
-            <Camera className="w-6 h-6 text-green-600" />
+            <Camera className="w-7 h-7 text-emerald-600" />
             <span className="text-sm font-medium">Camera</span>
           </NeuomorphicButton>
 
@@ -188,9 +187,9 @@ const Home = () => {
             <Link to="/app/map">
               <NeuomorphicButton
                 variant="secondary"
-                className="w-full flex flex-col items-center space-y-2 p-4"
+                className="w-full flex flex-col items-center space-y-3 p-6 h-auto"
               >
-                <Map className="w-6 h-6 text-emerald-600" />
+                <Map className="w-7 h-7 text-cyan-600" />
                 <span className="text-sm font-medium">Map</span>
               </NeuomorphicButton>
             </Link>
@@ -198,27 +197,27 @@ const Home = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <GlassmorphicCard className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-white" />
+        <div className="grid grid-cols-2 gap-6">
+          <GlassmorphicCard className="p-6" hover={false}>
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-elegant">
+                <TrendingUp className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{availableItems}</p>
-                <p className="text-xs text-gray-600">Available Items</p>
+                <p className="text-3xl font-bold text-gray-900">{availableItems}</p>
+                <p className="text-sm text-gray-600 font-medium">Available Items</p>
               </div>
             </div>
           </GlassmorphicCard>
 
-          <GlassmorphicCard className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-white" />
+          <GlassmorphicCard className="p-6" hover={false}>
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl flex items-center justify-center shadow-elegant">
+                <Calendar className="w-7 h-7 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{upcomingEvents.length}</p>
-                <p className="text-xs text-gray-600">Upcoming Events</p>
+                <p className="text-3xl font-bold text-gray-900">{upcomingEvents.length}</p>
+                <p className="text-sm text-gray-600 font-medium">Upcoming Events</p>
               </div>
             </div>
           </GlassmorphicCard>
@@ -230,11 +229,11 @@ const Home = () => {
         <GlassmorphicCard className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center">
-                <Map className="w-6 h-6 text-white" />
+              <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center shadow-elegant">
+                <Map className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Neighborhood Map</h3>
+                <h3 className="font-semibold text-gray-900 text-lg">Neighborhood Map</h3>
                 <p className="text-sm text-gray-600">See members, items, and events near you</p>
               </div>
             </div>
@@ -252,16 +251,16 @@ const Home = () => {
 
       {/* Subscription Limits Warning */}
       {currentLoop.subscriptionTier === 'free' && (
-        <GlassmorphicCard className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200">
-          <div className="flex items-start space-x-3">
-            <Zap className="w-5 h-5 text-amber-600 mt-0.5" />
+        <GlassmorphicCard className="p-5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50">
+          <div className="flex items-start space-x-4">
+            <Zap className="w-6 h-6 text-amber-600 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-medium text-amber-900">Free Plan Limits</h3>
+              <h3 className="font-semibold text-amber-900">Free Plan Limits</h3>
               <p className="text-sm text-amber-700 mt-1">
                 {currentLoop.members.length}/{subscriptionLimits.maxMembers} members • 
                 {currentLoop.events.length}/{subscriptionLimits.maxEvents} events this month
               </p>
-              <Link to="/upgrade" className="text-sm text-amber-800 font-medium hover:text-amber-900">
+              <Link to="/upgrade" className="text-sm text-amber-800 font-medium hover:text-amber-900 transition-colors">
                 Upgrade to Pro →
               </Link>
             </div>
@@ -270,25 +269,25 @@ const Home = () => {
       )}
 
       {/* Quick Actions */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
-        <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-6">
+        <h2 className="text-2xl font-semibold text-gray-900">Quick Actions</h2>
+        <div className="grid grid-cols-2 gap-6">
           {currentLoop.settings.allowItemSharing && (
             <Link to="/app/create-item">
-              <NeuomorphicButton variant="primary" className="w-full">
-                <div className="flex items-center justify-center space-x-2">
-                  <Plus className="w-5 h-5" />
-                  <span>Share Item</span>
+              <NeuomorphicButton variant="primary" className="w-full py-6">
+                <div className="flex items-center justify-center space-x-3">
+                  <Plus className="w-6 h-6" />
+                  <span className="text-lg">Share Item</span>
                 </div>
               </NeuomorphicButton>
             </Link>
           )}
           {currentLoop.settings.allowEvents && (
             <Link to="/app/create-event">
-              <NeuomorphicButton variant="accent" className="w-full">
-                <div className="flex items-center justify-center space-x-2">
-                  <Calendar className="w-5 h-5" />
-                  <span>Plan Event</span>
+              <NeuomorphicButton variant="accent" className="w-full py-6">
+                <div className="flex items-center justify-center space-x-3">
+                  <Calendar className="w-6 h-6" />
+                  <span className="text-lg">Plan Event</span>
                 </div>
               </NeuomorphicButton>
             </Link>
@@ -298,14 +297,14 @@ const Home = () => {
 
       {/* Recent Items */}
       {recentItems.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Recently Shared</h2>
-            <Link to="/app/share" className="text-blue-600 text-sm font-medium hover:text-blue-700">
+            <h2 className="text-2xl font-semibold text-gray-900">Recently Shared</h2>
+            <Link to="/app/share" className="text-indigo-600 text-sm font-medium hover:text-indigo-700 transition-colors">
               View All
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             {recentItems.map((item) => (
               <ItemCard key={item.id} item={item} compact />
             ))}
@@ -315,27 +314,27 @@ const Home = () => {
 
       {/* Upcoming Events */}
       {upcomingEvents.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">Upcoming Events</h2>
-            <Link to="/app/events" className="text-blue-600 text-sm font-medium hover:text-blue-700">
+            <h2 className="text-2xl font-semibold text-gray-900">Upcoming Events</h2>
+            <Link to="/app/events" className="text-indigo-600 text-sm font-medium hover:text-indigo-700 transition-colors">
               View All
             </Link>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {upcomingEvents.map((event) => (
-              <GlassmorphicCard key={event.id} className="p-4">
+              <GlassmorphicCard key={event.id} className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{event.description}</p>
-                    <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                    <h3 className="font-semibold text-gray-900 text-lg">{event.title}</h3>
+                    <p className="text-sm text-gray-600 mt-2">{event.description}</p>
+                    <div className="flex items-center space-x-6 mt-3 text-sm text-gray-500">
                       <span>{event.date}</span>
                       <span>{event.time}</span>
                       <span>{event.attendees?.length || 0} attending</span>
                     </div>
                   </div>
-                  <div className="text-2xl">📅</div>
+                  <div className="text-3xl">📅</div>
                 </div>
               </GlassmorphicCard>
             ))}
@@ -344,17 +343,17 @@ const Home = () => {
       )}
 
       {/* Loop Activity */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">Recent Activity</h2>
-        <div className="space-y-3">
-          <GlassmorphicCard className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="text-xl">👨‍💻</div>
+      <div className="space-y-6">
+        <h2 className="text-2xl font-semibold text-gray-900">Recent Activity</h2>
+        <div className="space-y-4">
+          <GlassmorphicCard className="p-6">
+            <div className="flex items-center space-x-4">
+              <div className="text-2xl">👨‍💻</div>
               <div className="flex-1">
                 <p className="text-sm text-gray-900">
                   <span className="font-medium">Welcome to {currentLoop.name}!</span>
                 </p>
-                <p className="text-xs text-gray-500">Start sharing items and organizing events</p>
+                <p className="text-xs text-gray-500 mt-1">Start sharing items and organizing events</p>
               </div>
             </div>
           </GlassmorphicCard>
@@ -364,7 +363,6 @@ const Home = () => {
       {/* Floating Action Button */}
       <FloatingActionButton
         onClick={() => {
-          // Navigate to create item or event based on loop settings
           if (currentLoop.settings.allowItemSharing) {
             window.location.href = '/app/create-item';
           } else if (currentLoop.settings.allowEvents) {

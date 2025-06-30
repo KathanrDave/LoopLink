@@ -3,39 +3,37 @@ import React from 'react';
 interface GlassmorphicCardProps {
   children: React.ReactNode;
   className?: string;
-  gradient?: string;
-  blur?: 'sm' | 'md' | 'lg';
-  opacity?: number;
+  variant?: 'light' | 'dark' | 'primary' | 'secondary';
+  hover?: boolean;
 }
 
 const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({
   children,
   className = '',
-  gradient = 'from-white/20 to-white/10',
-  blur = 'md',
-  opacity = 0.8
+  variant = 'light',
+  hover = true
 }) => {
-  const blurClass = {
-    sm: 'backdrop-blur-sm',
-    md: 'backdrop-blur-md',
-    lg: 'backdrop-blur-lg'
+  const variants = {
+    light: 'bg-white/10 backdrop-blur-xl border border-white/20',
+    dark: 'bg-black/10 backdrop-blur-xl border border-white/10',
+    primary: 'bg-gradient-to-br from-indigo-500/20 to-purple-600/20 backdrop-blur-xl border border-indigo-300/30',
+    secondary: 'bg-gradient-to-br from-pink-500/20 to-rose-600/20 backdrop-blur-xl border border-pink-300/30'
   };
+
+  const hoverEffect = hover ? 'hover:bg-white/15 hover:border-white/30 hover:shadow-elegant-lg hover:scale-[1.02]' : '';
 
   return (
     <div 
       className={`
-        bg-gradient-to-br ${gradient} 
-        ${blurClass[blur]} 
-        border border-white/20 
+        ${variants[variant]}
+        ${hoverEffect}
         rounded-2xl 
-        shadow-xl 
+        shadow-elegant
+        transition-all 
+        duration-300 
+        ease-out
         ${className}
       `}
-      style={{ 
-        backgroundColor: `rgba(255, 255, 255, ${opacity * 0.1})`,
-        backdropFilter: `blur(${blur === 'sm' ? '4px' : blur === 'md' ? '8px' : '12px'})`,
-        WebkitBackdropFilter: `blur(${blur === 'sm' ? '4px' : blur === 'md' ? '8px' : '12px'})`
-      }}
     >
       {children}
     </div>

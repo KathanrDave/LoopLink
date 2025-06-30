@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import GlassmorphicCard from '../components/GlassmorphicCard';
 import NeuomorphicButton from '../components/NeuomorphicButton';
@@ -58,32 +58,38 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute w-96 h-96 bg-gradient-to-r from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl top-1/4 left-1/4 animate-pulse"></div>
+        <div className="absolute w-96 h-96 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl bottom-1/4 right-1/4 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
       {/* Header */}
-      <header className="px-6 py-8">
+      <header className="relative z-10 px-6 py-8">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3 text-white hover:text-gray-300 transition-colors">
             <ArrowLeft className="w-5 h-5" />
-            <span>Back to Home</span>
+            <span className="font-medium">Back to Home</span>
           </Link>
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-sm">L</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-2xl flex items-center justify-center shadow-elegant">
+              <span className="text-white font-bold">L</span>
             </div>
-            <span className="text-white font-bold text-lg">LoopLink</span>
+            <span className="text-white font-bold text-xl">LoopLink</span>
           </div>
         </div>
       </header>
 
       {/* Auth Form */}
-      <div className="px-6 py-12">
+      <div className="relative z-10 px-6 py-12">
         <div className="max-w-md mx-auto">
-          <GlassmorphicCard className="p-8">
+          <GlassmorphicCard className="p-8" variant="dark">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white mb-2">
+              <h1 className="text-4xl font-bold text-white mb-3">
                 {mode === 'signin' ? 'Welcome Back' : 'Join LoopLink'}
               </h1>
-              <p className="text-gray-300">
+              <p className="text-gray-300 text-lg">
                 {mode === 'signin' 
                   ? 'Sign in to your account to continue' 
                   : 'Create your account to get started'
@@ -104,7 +110,7 @@ const AuthPage = () => {
                     Full Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
                       type="text"
                       id="name"
@@ -112,7 +118,7 @@ const AuthPage = () => {
                       value={formData.name}
                       onChange={handleChange}
                       placeholder="Enter your full name"
-                      className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400"
+                      className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
                       required={mode === 'signup'}
                     />
                   </div>
@@ -124,7 +130,7 @@ const AuthPage = () => {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="email"
                     id="email"
@@ -132,7 +138,7 @@ const AuthPage = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Enter your email"
-                    className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400"
+                    className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
                     required
                   />
                 </div>
@@ -143,7 +149,7 @@ const AuthPage = () => {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     id="password"
@@ -151,13 +157,13 @@ const AuthPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="Enter your password"
-                    className="w-full pl-12 pr-12 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-gray-400"
+                    className="w-full pl-12 pr-12 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -172,24 +178,24 @@ const AuthPage = () => {
                 size="lg"
               >
                 {loading ? (
-                  <div className="flex items-center justify-center space-x-2">
+                  <div className="flex items-center justify-center space-x-3">
                     <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
                     <span>{mode === 'signin' ? 'Signing In...' : 'Creating Account...'}</span>
                   </div>
                 ) : (
-                  <span>{mode === 'signin' ? 'Sign In' : 'Create Account'}</span>
+                  <span className="text-lg">{mode === 'signin' ? 'Sign In' : 'Create Account'}</span>
                 )}
               </NeuomorphicButton>
             </form>
 
             {/* Demo Login */}
-            <div className="mt-6">
+            <div className="mt-8">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-white/20"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-transparent text-gray-400">Or try demo</span>
+                  <span className="px-3 bg-transparent text-gray-400">Or try demo</span>
                 </div>
               </div>
               
@@ -197,9 +203,13 @@ const AuthPage = () => {
                 onClick={handleDemoLogin}
                 disabled={loading}
                 variant="secondary"
-                className="w-full mt-4"
+                className="w-full mt-6"
+                size="lg"
               >
-                Continue with Demo Account
+                <div className="flex items-center justify-center space-x-2">
+                  <Sparkles className="w-5 h-5" />
+                  <span>Continue with Demo Account</span>
+                </div>
               </NeuomorphicButton>
             </div>
 
@@ -213,7 +223,7 @@ const AuthPage = () => {
                     setError('');
                     setFormData({ name: '', email: '', password: '' });
                   }}
-                  className="ml-2 text-purple-400 hover:text-purple-300 font-medium transition-colors"
+                  className="ml-2 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
                 >
                   {mode === 'signin' ? 'Sign Up' : 'Sign In'}
                 </button>

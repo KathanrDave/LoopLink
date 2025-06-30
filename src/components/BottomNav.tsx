@@ -11,7 +11,7 @@ const BottomNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-200/50 z-40 shadow-elegant">
       <div className="grid grid-cols-4">
         {navItems.map(({ to, icon: Icon, label, end }) => (
           <NavLink
@@ -19,17 +19,17 @@ const BottomNav = () => {
             to={to}
             end={end}
             className={({ isActive }) =>
-              `flex flex-col items-center py-3 px-1 text-xs transition-all duration-200 ${
+              `flex flex-col items-center py-4 px-2 text-xs transition-all duration-300 ${
                 isActive
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                  ? 'text-indigo-600 bg-indigo-50/50'
+                  : 'text-gray-500 hover:text-indigo-600 hover:bg-gray-50/50'
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <Icon className={`w-6 h-6 mb-1 transition-transform ${isActive ? 'scale-110' : ''}`} />
-                <span className={`font-medium ${isActive ? 'text-blue-600' : ''}`}>{label}</span>
+                <Icon className={`w-6 h-6 mb-1 transition-transform duration-300 ${isActive ? 'scale-110' : ''}`} />
+                <span className={`font-medium ${isActive ? 'text-indigo-600' : ''}`}>{label}</span>
               </>
             )}
           </NavLink>
