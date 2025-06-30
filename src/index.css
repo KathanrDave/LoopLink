@@ -143,26 +143,6 @@
     animation: shimmer 2s infinite;
   }
 
-  /* Bento Grid */
-  .bento-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 1rem;
-  }
-
-  .bento-item-large {
-    grid-column: span 4;
-    grid-row: span 2;
-  }
-
-  .bento-item-medium {
-    grid-column: span 3;
-  }
-
-  .bento-item-small {
-    grid-column: span 2;
-  }
-
   /* Status Indicators */
   .status-dot {
     position: relative;
@@ -316,6 +296,23 @@
 
   .text-fluid-4xl {
     font-size: clamp(2.25rem, 7vw, 3rem);
+  }
+
+  /* Shadow Utilities */
+  .shadow-elegant {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-elegant-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-elegant-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-elegant-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
