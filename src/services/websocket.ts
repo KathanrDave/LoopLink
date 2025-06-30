@@ -1,7 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 
 export interface RealtimeUpdate {
-  type: 'item_added' | 'item_updated' | 'event_created' | 'member_joined' | 'message_sent';
+  type: 'item_added' | 'item_updated' | 'event_created' | 'member_joined' | 'message_sent' | 'user_typing' | 'message_edited' | 'message_deleted' | 'message_reaction';
   data: any;
   loopId: string;
   userId: string;
@@ -11,13 +11,13 @@ export interface RealtimeUpdate {
 export class WebSocketService {
   private socket: Socket | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3; // Reduced attempts for faster fallback
+  private maxReconnectAttempts = 3;
   private listeners: Map<string, Function[]> = new Map();
   private isConnected = false;
   private pollingInterval: NodeJS.Timeout | null = null;
+  private currentRooms: Set<string> = new Set();
 
   connect(userId: string, loopId: string) {
-    // Check if WebSocket is supported and if we have a valid URL
     const wsUrl = import.meta.env.VITE_WEBSOCKET_URL;
     
     if (!wsUrl) {
@@ -28,17 +28,14 @@ export class WebSocketService {
 
     try {
       this.socket = io(wsUrl, {
-        auth: {
-          userId,
-          loopId
-        },
+        auth: { userId, loopId },
         transports: ['websocket', 'polling'],
-        timeout: 5000, // 5 second timeout
+        timeout: 5000,
         forceNew: true
       });
 
       this.setupEventListeners();
-      this.joinLoop(loopId);
+      this.joinRoom(loopId, userId);
       
     } catch (error) {
       console.warn('WebSocket connection failed, falling back to polling:', error);
@@ -53,8 +50,13 @@ export class WebSocketService {
       console.log('Connected to WebSocket server');
       this.isConnected = true;
       this.reconnectAttempts = 0;
-      this.stopPolling(); // Stop polling if WebSocket connects
+      this.stopPolling();
       this.emit('connection_established', { connected: true });
+      
+      // Rejoin all rooms
+      this.currentRooms.forEach(roomId => {
+        this.socket?.emit('join_room', { roomId });
+      });
     });
 
     this.socket.on('disconnect', () => {
@@ -67,6 +69,14 @@ export class WebSocketService {
       this.handleRealtimeUpdate(update);
     });
 
+    this.socket.on('chat_message', (message: any) => {
+      this.emit('chat_message', message);
+    });
+
+    this.socket.on('user_typing', (data: any) => {
+      this.emit('user_typing', data);
+    });
+
     this.socket.on('loop_update', (data: any) => {
       this.emit('loop_update', data);
     });
@@ -76,7 +86,7 @@ export class WebSocketService {
     });
 
     this.socket.on('connect_error', (error) => {
-      console.warn('WebSocket connection error, will attempt fallback:', error.message || error);
+      console.warn('WebSocket connection error:', error.message || error);
       this.isConnected = false;
       this.handleReconnection();
     });
@@ -85,7 +95,7 @@ export class WebSocketService {
   private handleReconnection() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      const delay = Math.min(Math.pow(2, this.reconnectAttempts) * 1000, 10000); // Cap at 10 seconds
+      const delay = Math.min(Math.pow(2, this.reconnectAttempts) * 1000, 10000);
       
       setTimeout(() => {
         if (!this.isConnected) {
@@ -100,12 +110,12 @@ export class WebSocketService {
   }
 
   private startPolling() {
-    if (this.pollingInterval) return; // Already polling
+    if (this.pollingInterval) return;
     
     console.log('Starting polling mode for real-time updates');
     this.pollingInterval = setInterval(() => {
       this.emit('poll_update', { timestamp: Date.now() });
-    }, 30000); // Poll every 30 seconds
+    }, 30000);
     
     this.emit('connection_established', { connected: false, polling: true });
   }
@@ -118,15 +128,19 @@ export class WebSocketService {
     }
   }
 
-  joinLoop(loopId: string) {
+  joinRoom(roomId: string, userId?: string) {
+    this.currentRooms.add(roomId);
+    
     if (this.socket?.connected) {
-      this.socket.emit('join_loop', { loopId });
+      this.socket.emit('join_room', { roomId, userId });
     }
   }
 
-  leaveLoop(loopId: string) {
+  leaveRoom(roomId: string, userId?: string) {
+    this.currentRooms.delete(roomId);
+    
     if (this.socket?.connected) {
-      this.socket.emit('leave_loop', { loopId });
+      this.socket.emit('leave_room', { roomId, userId });
     }
   }
 
@@ -139,9 +153,23 @@ export class WebSocketService {
     if (this.socket?.connected) {
       this.socket.emit('send_update', fullUpdate);
     } else {
-      // Queue update for when connection is restored or handle via polling
       console.log('WebSocket not connected, queuing update for next sync');
       this.emit('update_queued', fullUpdate);
+    }
+  }
+
+  // Chat-specific methods
+  sendChatMessage(roomId: string, message: any) {
+    if (this.socket?.connected) {
+      this.socket.emit('chat_message', { roomId, message });
+    } else {
+      this.emit('chat_message', message);
+    }
+  }
+
+  sendTypingIndicator(roomId: string, userId: string, isTyping: boolean) {
+    if (this.socket?.connected) {
+      this.socket.emit('user_typing', { roomId, userId, isTyping });
     }
   }
 
@@ -172,6 +200,10 @@ export class WebSocketService {
         case 'member_joined':
           title = 'New Member Joined';
           body = `${update.data.name} joined your loop`;
+          break;
+        case 'message_sent':
+          title = 'New Message';
+          body = update.data.content;
           break;
       }
       
@@ -222,6 +254,7 @@ export class WebSocketService {
   disconnect() {
     this.isConnected = false;
     this.stopPolling();
+    this.currentRooms.clear();
     
     if (this.socket) {
       this.socket.disconnect();
@@ -230,12 +263,10 @@ export class WebSocketService {
     this.listeners.clear();
   }
 
-  // Check connection status
   isWebSocketConnected(): boolean {
     return this.isConnected && this.socket?.connected === true;
   }
 
-  // Check if using polling fallback
   isUsingPolling(): boolean {
     return this.pollingInterval !== null;
   }

@@ -1,14 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, TrendingUp, Calendar, Users, MapPin, Building2, Crown, Zap, Map, Navigation } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Users, MapPin, Building2, Crown, Zap, Map, Navigation, MessageCircle, QrCode, Camera } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import ItemCard from '../components/ItemCard';
 import GlassmorphicCard from '../components/GlassmorphicCard';
 import NeuomorphicButton from '../components/NeuomorphicButton';
 import FloatingActionButton from '../components/FloatingActionButton';
+import Chat from '../components/Chat';
+import QRGenerator from '../components/QRGenerator';
+import CameraCapture from '../components/CameraCapture';
+import { cameraService, PhotoResult } from '../services/camera';
 
 const Home = () => {
   const { currentLoop, currentUser, subscriptionLimits, loopsLoading } = useApp();
+  const [showChat, setShowChat] = useState(false);
+  const [showQR, setShowQR] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
 
   // Show loading state
   if (loopsLoading) {
@@ -78,6 +85,12 @@ const Home = () => {
     }
   };
 
+  const handlePhotoTaken = (photo: PhotoResult) => {
+    console.log('Photo taken:', photo);
+    // Handle the photo - could upload to storage, add to item, etc.
+    setShowCamera(false);
+  };
+
   const LoopIcon = getLoopIcon(currentLoop.type);
 
   return (
@@ -113,12 +126,14 @@ const Home = () => {
                   <p className="text-white/80 capitalize">{currentLoop.type} Loop</p>
                 </div>
               </div>
-              {currentLoop.subscriptionTier !== 'free' && (
-                <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
-                  <Crown className="w-4 h-4" />
-                  <span className="text-sm font-medium capitalize">{currentLoop.subscriptionTier}</span>
-                </div>
-              )}
+              <div className="flex items-center space-x-2">
+                {currentLoop.subscriptionTier !== 'free' && (
+                  <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
+                    <Crown className="w-4 h-4" />
+                    <span className="text-sm font-medium capitalize">{currentLoop.subscriptionTier}</span>
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="grid grid-cols-3 gap-6">
@@ -137,6 +152,50 @@ const Home = () => {
             </div>
           </div>
         </GlassmorphicCard>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <NeuomorphicButton
+            onClick={() => setShowChat(true)}
+            variant="secondary"
+            className="flex flex-col items-center space-y-2 p-4"
+          >
+            <MessageCircle className="w-6 h-6 text-blue-600" />
+            <span className="text-sm font-medium">Chat</span>
+          </NeuomorphicButton>
+
+          {currentLoop.type === 'organization' && (
+            <NeuomorphicButton
+              onClick={() => setShowQR(true)}
+              variant="secondary"
+              className="flex flex-col items-center space-y-2 p-4"
+            >
+              <QrCode className="w-6 h-6 text-purple-600" />
+              <span className="text-sm font-medium">QR Code</span>
+            </NeuomorphicButton>
+          )}
+
+          <NeuomorphicButton
+            onClick={() => setShowCamera(true)}
+            variant="secondary"
+            className="flex flex-col items-center space-y-2 p-4"
+          >
+            <Camera className="w-6 h-6 text-green-600" />
+            <span className="text-sm font-medium">Camera</span>
+          </NeuomorphicButton>
+
+          {currentLoop.type === 'neighborhood' && (
+            <Link to="/app/map">
+              <NeuomorphicButton
+                variant="secondary"
+                className="w-full flex flex-col items-center space-y-2 p-4"
+              >
+                <Map className="w-6 h-6 text-emerald-600" />
+                <span className="text-sm font-medium">Map</span>
+              </NeuomorphicButton>
+            </Link>
+          )}
+        </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 gap-4">
@@ -313,6 +372,33 @@ const Home = () => {
           }
         }}
         gradient={getLoopGradient(currentLoop.type)}
+      />
+
+      {/* Chat Component */}
+      <Chat 
+        isOpen={showChat} 
+        onClose={() => setShowChat(false)}
+        roomId={currentLoop.id}
+      />
+
+      {/* QR Generator */}
+      <QRGenerator
+        isOpen={showQR}
+        onClose={() => setShowQR(false)}
+        type="profile"
+        data={{
+          socialLinks: {},
+          website: '',
+          address: '',
+          phone: ''
+        }}
+      />
+
+      {/* Camera Capture */}
+      <CameraCapture
+        isOpen={showCamera}
+        onClose={() => setShowCamera(false)}
+        onPhotoTaken={handlePhotoTaken}
       />
     </div>
   );

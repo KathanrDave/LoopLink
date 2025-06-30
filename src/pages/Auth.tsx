@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, User, Chrome } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, User, MapPin, Camera } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import GlassmorphicCard from '../components/GlassmorphicCard';
 import NeuomorphicButton from '../components/NeuomorphicButton';
+import { locationService } from '../services/location';
 
 const Auth = () => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
@@ -12,23 +13,56 @@ const Auth = () => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
+  const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
 
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const { signInWithEmail, signUpWithEmail } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || '/app';
 
-  const handleGoogleSignIn = async () => {
+  // Check permissions on component mount
+  useEffect(() => {
+    checkPermissions();
+  }, []);
+
+  const checkPermissions = async () => {
+    // Check location permission
     try {
-      setLoading(true);
-      setError('');
-      await signInWithGoogle();
-      // Navigation will be handled by auth state change
-    } catch (error: any) {
-      setError(error.message || 'Failed to sign in with Google');
-    } finally {
-      setLoading(false);
+      const locationStatus = await locationService.requestPermission();
+      setLocationPermission(locationStatus);
+    } catch (error) {
+      console.warn('Location permission check failed:', error);
+    }
+
+    // Check camera permission
+    try {
+      if ('permissions' in navigator) {
+        const cameraResult = await navigator.permissions.query({ name: 'camera' as PermissionName });
+        setCameraPermission(cameraResult.state as any);
+      }
+    } catch (error) {
+      console.warn('Camera permission check failed:', error);
+    }
+  };
+
+  const requestPermissions = async () => {
+    try {
+      // Request location permission
+      await locationService.requestPermission();
+      
+      // Request camera permission
+      try {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        setCameraPermission('granted');
+      } catch (error) {
+        setCameraPermission('denied');
+      }
+      
+      checkPermissions();
+    } catch (error) {
+      console.error('Permission request failed:', error);
     }
   };
 
@@ -63,6 +97,20 @@ const Auth = () => {
     }
   };
 
+  // Demo accounts for quick testing
+  const demoAccounts = [
+    { email: 'alex@looplink.com', password: 'demo123', name: 'Alex Chen' },
+    { email: 'sarah@looplink.com', password: 'demo123', name: 'Sarah Johnson' },
+    { email: 'mike@looplink.com', password: 'demo123', name: 'Mike Rodriguez' }
+  ];
+
+  const useDemoAccount = (account: typeof demoAccounts[0]) => {
+    setEmail(account.email);
+    setPassword(account.password);
+    setName(account.name);
+    setMode('signin');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
       {/* Background elements */}
@@ -89,7 +137,29 @@ const Auth = () => {
 
       {/* Auth Form */}
       <div className="relative z-10 px-6 py-12">
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto space-y-6">
+          {/* Demo Accounts */}
+          <GlassmorphicCard 
+            className="p-4"
+            gradient="from-blue/20 to-cyan/10"
+            blur="lg"
+            opacity={0.15}
+          >
+            <h3 className="text-white font-semibold mb-3">Quick Demo Access</h3>
+            <div className="grid gap-2">
+              {demoAccounts.map((account, index) => (
+                <button
+                  key={index}
+                  onClick={() => useDemoAccount(account)}
+                  className="text-left p-3 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <p className="text-white text-sm font-medium">{account.name}</p>
+                  <p className="text-gray-300 text-xs">{account.email}</p>
+                </button>
+              ))}
+            </div>
+          </GlassmorphicCard>
+
           <GlassmorphicCard 
             className="p-8"
             gradient="from-white/20 to-white/10"
@@ -117,27 +187,41 @@ const Auth = () => {
                 </div>
               )}
 
-              {/* Google Sign In */}
-              <NeuomorphicButton
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                variant="secondary"
-                className="w-full"
-              >
-                <div className="flex items-center justify-center space-x-3">
-                  <Chrome className="w-5 h-5" />
-                  <span>Continue with Google</span>
+              {/* Permissions Status */}
+              <div className="space-y-3">
+                <h3 className="text-white font-medium text-sm">App Permissions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className={`p-3 rounded-lg border ${
+                    locationPermission === 'granted' 
+                      ? 'bg-green-500/20 border-green-500/50' 
+                      : 'bg-amber-500/20 border-amber-500/50'
+                  }`}>
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="w-4 h-4 text-white" />
+                      <span className="text-white text-xs">Location</span>
+                    </div>
+                    <p className="text-xs text-gray-300 mt-1 capitalize">{locationPermission}</p>
+                  </div>
+                  <div className={`p-3 rounded-lg border ${
+                    cameraPermission === 'granted' 
+                      ? 'bg-green-500/20 border-green-500/50' 
+                      : 'bg-amber-500/20 border-amber-500/50'
+                  }`}>
+                    <div className="flex items-center space-x-2">
+                      <Camera className="w-4 h-4 text-white" />
+                      <span className="text-white text-xs">Camera</span>
+                    </div>
+                    <p className="text-xs text-gray-300 mt-1 capitalize">{cameraPermission}</p>
+                  </div>
                 </div>
-              </NeuomorphicButton>
-
-              {/* Divider */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/20"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-transparent text-gray-300">or</span>
-                </div>
+                {(locationPermission !== 'granted' || cameraPermission !== 'granted') && (
+                  <button
+                    onClick={requestPermissions}
+                    className="w-full text-xs text-purple-300 hover:text-purple-200 transition-colors"
+                  >
+                    Grant Permissions for Full Experience
+                  </button>
+                )}
               </div>
 
               {/* Email Form */}
