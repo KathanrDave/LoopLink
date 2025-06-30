@@ -492,6 +492,19 @@ const Landing = () => {
                 <span className="text-2xl font-bold text-white">LoopLink</span>
               </div>
               <p className="text-gray-400">Create your loop. Connect your circle. Transform your world.</p>
+              
+              {/* Built with Bolt Badge */}
+              <div className="pt-4">
+                <a 
+                  href="https://bolt.new" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white text-sm font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  <Zap className="w-4 h-4" />
+                  <span>Built with Bolt</span>
+                </a>
+              </div>
             </div>
 
             {['Product', 'Company', 'Support'].map((section, index) => (
