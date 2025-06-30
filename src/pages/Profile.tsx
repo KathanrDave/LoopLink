@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, Award, TrendingUp, Calendar, Package, Star, Crown, Shield, Eye } from 'lucide-react';
+import { Settings, Award, TrendingUp, Calendar, Package, Star, Crown, Shield, Eye, Users } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import GlassmorphicCard from '../components/GlassmorphicCard';
 import NeuomorphicButton from '../components/NeuomorphicButton';
