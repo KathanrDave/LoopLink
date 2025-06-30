@@ -38,7 +38,7 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
       id: 'msg2',
       roomId: chatRoomId,
       userId: '3', // Mike
-      content: 'I saw them in the tool shed! I\'ll bring them to the neighborhood BBQ tomorrow.',
+      content: "I saw them in the tool shed! I'll bring them to the neighborhood BBQ tomorrow.",
       type: 'text' as const,
       timestamp: Date.now() - 3600000 * 4
     },
@@ -54,7 +54,7 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
       id: 'msg4',
       roomId: chatRoomId,
       userId: '1', // Current user (Alex)
-      content: 'The BBQ starts at 4pm. Lemonade sounds perfect, Emma! I\'ll be bringing the grill equipment around 3:30 to set up.',
+      content: "The BBQ starts at 4pm. Lemonade sounds perfect, Emma! I'll be bringing the grill equipment around 3:30 to set up.",
       type: 'text' as const,
       timestamp: Date.now() - 3600000 * 2
     },
@@ -62,7 +62,7 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
       id: 'msg5',
       roomId: chatRoomId,
       userId: '2', // Sarah
-      content: 'Thanks Mike! I\'ll see you all tomorrow then. Can't wait!',
+      content: "Thanks Mike! I'll see you all tomorrow then. Can't wait!",
       type: 'text' as const,
       timestamp: Date.now() - 3600000 * 1
     }
