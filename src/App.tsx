@@ -1,8 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
+import AuthGuard from './components/AuthGuard';
 import Layout from './components/Layout';
 import Landing from './pages/Landing';
+import Auth from './pages/Auth';
 import Home from './pages/Home';
 import Share from './pages/Share';
 import Events from './pages/Events';
@@ -18,9 +20,22 @@ function App() {
     <AppProvider>
       <Router>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<Landing />} />
-          <Route path="/join" element={<JoinCommunity />} />
-          <Route path="/app" element={<Layout />}>
+          <Route path="/auth" element={<Auth />} />
+          
+          {/* Protected routes */}
+          <Route path="/join" element={
+            <AuthGuard>
+              <JoinCommunity />
+            </AuthGuard>
+          } />
+          
+          <Route path="/app" element={
+            <AuthGuard>
+              <Layout />
+            </AuthGuard>
+          }>
             <Route index element={<Home />} />
             <Route path="share" element={<Share />} />
             <Route path="events" element={<Events />} />
