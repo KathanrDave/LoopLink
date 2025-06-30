@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { ChevronDown, Bell, Users, MapPin, Building2, LogOut, User as UserIcon } from 'lucide-react';
+import { ChevronDown, Bell, Users, MapPin, Building2, LogOut, User as UserIcon, Crown, Shield, Eye } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
 import GlassmorphicCard from './GlassmorphicCard';
+import PermissionGate from './rbac/PermissionGate';
 
 const Header = () => {
-  const { currentUser, currentLoop, userLoops, setCurrentLoop } = useApp();
+  const { currentUser, currentLoop, userLoops, setCurrentLoop, isAdmin } = useApp();
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [showLoopSelector, setShowLoopSelector] = useState(false);
@@ -30,6 +31,24 @@ const Header = () => {
     }
   };
 
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'admin': return Crown;
+      case 'member': return Shield;
+      case 'viewer': return Eye;
+      default: return Shield;
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'text-amber-600 bg-amber-100';
+      case 'member': return 'text-blue-600 bg-blue-100';
+      case 'viewer': return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
   const handleLoopChange = (loop: any) => {
     setCurrentLoop(loop);
     setShowLoopSelector(false);
@@ -43,6 +62,7 @@ const Header = () => {
   if (!currentLoop) return null;
 
   const LoopIcon = getLoopIcon(currentLoop.type);
+  const RoleIcon = getRoleIcon(currentUser?.role || 'member');
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-b border-gray-200/50 z-40 shadow-sm">
@@ -61,12 +81,21 @@ const Header = () => {
                 <h1 className="text-lg font-bold text-gray-900 line-clamp-1">
                   {currentLoop.name}
                 </h1>
-                <p className="text-sm text-gray-600 capitalize font-medium">{currentLoop.type} Loop • {currentLoop.members.length} members</p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-sm text-gray-600 capitalize font-medium">
+                    {currentLoop.type} Loop • {currentLoop.members.length} members
+                  </p>
+                  {/* Role Badge in Header */}
+                  <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold ${getRoleColor(currentUser?.role || 'member')}`}>
+                    <RoleIcon className="w-3 h-3" />
+                    <span className="capitalize">{currentUser?.role}</span>
+                  </div>
+                </div>
               </div>
               <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
             </button>
 
-            {/* FIXED Loop Selector Dropdown */}
+            {/* Loop Selector Dropdown */}
             {showLoopSelector && (
               <div className="absolute top-full left-0 mt-2 w-96 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 z-50 overflow-hidden">
                 {/* Header */}
@@ -79,6 +108,7 @@ const Header = () => {
                   {userLoops.map((loop) => {
                     const Icon = getLoopIcon(loop.type);
                     const isActive = loop.id === currentLoop.id;
+                    const userInLoop = loop.members.find(m => m.id === currentUser?.id);
                     
                     return (
                       <button
@@ -93,9 +123,17 @@ const Header = () => {
                         </div>
                         <div className="flex-1 text-left min-w-0">
                           <p className="font-bold text-gray-900 truncate">{loop.name}</p>
-                          <p className="text-sm text-gray-600 font-medium">
-                            {loop.members.length} members • {loop.type}
-                          </p>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-sm text-gray-600 font-medium">
+                              {loop.members.length} members • {loop.type}
+                            </p>
+                            {userInLoop && (
+                              <div className={`flex items-center space-x-1 px-2 py-0.5 rounded-full text-xs font-semibold ${getRoleColor(userInLoop.role)}`}>
+                                <RoleIcon className="w-3 h-3" />
+                                <span className="capitalize">{userInLoop.role}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                         {isActive && (
                           <div className="w-3 h-3 bg-indigo-600 rounded-full shadow-sm"></div>
@@ -147,6 +185,10 @@ const Header = () => {
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-gray-900 truncate">{currentUser?.name}</p>
                         <p className="text-sm text-gray-600 truncate">{currentUser?.email}</p>
+                        <div className={`flex items-center space-x-1 mt-1 px-2 py-1 rounded-full text-xs font-semibold ${getRoleColor(currentUser?.role || 'member')} w-fit`}>
+                          <RoleIcon className="w-3 h-3" />
+                          <span className="capitalize">{currentUser?.role}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -161,6 +203,13 @@ const Header = () => {
                       <UserIcon className="w-5 h-5 text-gray-500" />
                       <span>View Profile</span>
                     </Link>
+                    
+                    <PermissionGate permission="manage_loop">
+                      <button className="w-full flex items-center space-x-3 px-6 py-3 text-gray-700 hover:bg-gray-50/80 transition-colors font-medium">
+                        <Crown className="w-5 h-5 text-amber-500" />
+                        <span>Admin Panel</span>
+                      </button>
+                    </PermissionGate>
                     
                     <button
                       onClick={handleSignOut}

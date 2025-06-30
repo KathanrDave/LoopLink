@@ -7,7 +7,7 @@ export interface User {
   avatar: string;
   reputation: number;
   badges: string[];
-  role: 'admin' | 'member';
+  role: 'admin' | 'member' | 'viewer';
   email: string;
   location?: {
     lat: number;
@@ -82,11 +82,20 @@ export interface Loop {
   subscriptionTier: 'free' | 'pro' | 'enterprise';
 }
 
+export interface ActivityItem {
+  id: string;
+  type: 'item_shared' | 'item_borrowed' | 'item_returned' | 'event_created' | 'event_joined' | 'member_joined' | 'message_sent' | 'loop_updated';
+  timestamp: number;
+  userId: string;
+  data: any;
+}
+
 interface AppContextType {
   currentUser: User | null;
   currentLoop: Loop | null;
   userLoops: Loop[];
   loopsLoading: boolean;
+  activities: ActivityItem[];
   setCurrentUser: (user: User) => void;
   setCurrentLoop: (loop: Loop) => void;
   addLoop: (loop: Loop) => void;
@@ -103,11 +112,35 @@ interface AppContextType {
     hasAnalytics: boolean;
     hasCustomBranding: boolean;
   };
+  // Role-based permissions
+  hasPermission: (action: string) => boolean;
+  isAdmin: () => boolean;
+  isMember: () => boolean;
+  isViewer: () => boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Demo users
+// Role permissions mapping
+const ROLE_PERMISSIONS = {
+  admin: [
+    'create_item', 'edit_item', 'delete_item', 'borrow_item',
+    'create_event', 'edit_event', 'delete_event', 'join_event',
+    'invite_member', 'remove_member', 'manage_loop', 'view_analytics',
+    'access_chat', 'generate_qr', 'view_all_items', 'view_all_events'
+  ],
+  member: [
+    'create_item', 'edit_own_item', 'borrow_item',
+    'create_event', 'edit_own_event', 'join_event',
+    'invite_member', 'access_chat', 'generate_qr',
+    'view_all_items', 'view_all_events'
+  ],
+  viewer: [
+    'view_all_items', 'view_all_events', 'access_chat'
+  ]
+};
+
+// Demo users with roles
 const demoUsers: User[] = [
   { 
     id: '1', 
@@ -147,7 +180,7 @@ const demoUsers: User[] = [
     avatar: '👩‍📚', 
     reputation: 85, 
     badges: ['Book Lover'], 
-    role: 'member',
+    role: 'viewer',
     email: 'emma@example.com',
     subscriptionTier: 'enterprise'
   }
@@ -286,12 +319,48 @@ const demoLoops: Loop[] = [
   }
 ];
 
+// Generate demo activities
+const generateDemoActivities = (): ActivityItem[] => {
+  const now = Date.now();
+  return [
+    {
+      id: '1',
+      type: 'item_shared',
+      timestamp: now - 3600000, // 1 hour ago
+      userId: '1',
+      data: { itemTitle: 'Power Drill', userName: 'Alex Chen', itemId: '1' }
+    },
+    {
+      id: '2',
+      type: 'member_joined',
+      timestamp: now - 7200000, // 2 hours ago
+      userId: '2',
+      data: { userName: 'Sarah Johnson' }
+    },
+    {
+      id: '3',
+      type: 'event_created',
+      timestamp: now - 10800000, // 3 hours ago
+      userId: '2',
+      data: { eventTitle: 'Neighborhood Cleanup', organizerName: 'Sarah Johnson', eventId: '2' }
+    },
+    {
+      id: '4',
+      type: 'item_borrowed',
+      timestamp: now - 14400000, // 4 hours ago
+      userId: '1',
+      data: { itemTitle: 'JavaScript Book', borrowerName: 'Alex Chen', itemId: '2' }
+    }
+  ];
+};
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentLoop, setCurrentLoop] = useState<Loop | null>(null);
   const [userLoops, setUserLoops] = useState<Loop[]>([]);
   const [loopsLoading, setLoopsLoading] = useState(true);
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
 
   // Sync auth user with app user
   useEffect(() => {
@@ -300,11 +369,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // Load user's loops
       setUserLoops(demoLoops);
       setCurrentLoop(demoLoops[1]); // Default to neighborhood loop
+      setActivities(generateDemoActivities());
       setLoopsLoading(false);
     } else {
       setCurrentUser(null);
       setCurrentLoop(null);
       setUserLoops([]);
+      setActivities([]);
       setLoopsLoading(false);
     }
   }, [user]);
@@ -347,6 +418,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const subscriptionLimits = getSubscriptionLimits(currentLoop?.subscriptionTier || 'free');
+
+  // Role-based permission functions
+  const hasPermission = (action: string): boolean => {
+    if (!currentUser) return false;
+    return ROLE_PERMISSIONS[currentUser.role]?.includes(action) || false;
+  };
+
+  const isAdmin = (): boolean => currentUser?.role === 'admin';
+  const isMember = (): boolean => currentUser?.role === 'member';
+  const isViewer = (): boolean => currentUser?.role === 'viewer';
 
   const addLoop = (loop: Loop) => {
     setUserLoops(prev => [...prev, loop]);
@@ -430,6 +511,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUserLoops(prev => prev.map(loop => 
       loop.id === currentLoop.id ? updatedLoop : loop
     ));
+
+    // Add activity
+    const newActivity: ActivityItem = {
+      id: Date.now().toString(),
+      type: 'item_shared',
+      timestamp: Date.now(),
+      userId: itemData.owner_id,
+      data: { itemTitle: newItem.title, userName: currentUser?.name, itemId: newItem.id }
+    };
+    setActivities(prev => [newActivity, ...prev]);
   };
 
   const updateItem = (id: string, updates: Partial<Item>) => {
@@ -465,6 +556,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setUserLoops(prev => prev.map(loop => 
       loop.id === currentLoop.id ? updatedLoop : loop
     ));
+
+    // Add activity
+    const organizer = currentLoop.members.find(m => m.id === eventData.organizer_id);
+    const newActivity: ActivityItem = {
+      id: Date.now().toString(),
+      type: 'event_created',
+      timestamp: Date.now(),
+      userId: eventData.organizer_id,
+      data: { eventTitle: newEvent.title, organizerName: organizer?.name, eventId: newEvent.id }
+    };
+    setActivities(prev => [newActivity, ...prev]);
   };
 
   const joinEvent = (eventId: string, userId: string) => {
@@ -491,6 +593,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       currentLoop,
       userLoops,
       loopsLoading,
+      activities,
       setCurrentUser,
       setCurrentLoop: (loop) => {
         setCurrentLoop(loop);
@@ -503,7 +606,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateItem,
       addEvent,
       joinEvent,
-      subscriptionLimits
+      subscriptionLimits,
+      hasPermission,
+      isAdmin,
+      isMember,
+      isViewer
     }}>
       {children}
     </AppContext.Provider>

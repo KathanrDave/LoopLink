@@ -60,19 +60,19 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, compact = false }) => {
           <div className="flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center space-x-2">
               <User className="w-3 h-3" />
-              <span className="font-medium">{owner?.name}</span>
+              <span className="font-medium text-gray-700">{owner?.name}</span>
             </div>
             {item.status === 'borrowed' && item.due_date && (
               <div className="flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
-                <span>Due {new Date(item.due_date).toLocaleDateString()}</span>
+                <span className="text-gray-600">Due {new Date(item.due_date).toLocaleDateString()}</span>
               </div>
             )}
           </div>
 
           {item.status === 'borrowed' && borrower && (
-            <div className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200">
-              Borrowed by <span className="font-semibold">{borrower.name}</span>
+            <div className="text-xs text-amber-800 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200">
+              Borrowed by <span className="font-semibold text-amber-900">{borrower.name}</span>
             </div>
           )}
         </div>

@@ -14,13 +14,13 @@ const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({
   hover = true
 }) => {
   const variants = {
-    light: 'bg-white/10 backdrop-blur-xl border border-white/20',
-    dark: 'bg-black/10 backdrop-blur-xl border border-white/10',
-    primary: 'bg-gradient-to-br from-indigo-500/20 to-purple-600/20 backdrop-blur-xl border border-indigo-300/30',
-    secondary: 'bg-gradient-to-br from-pink-500/20 to-rose-600/20 backdrop-blur-xl border border-pink-300/30'
+    light: 'bg-white/80 backdrop-blur-xl border border-white/30 text-gray-900',
+    dark: 'bg-black/20 backdrop-blur-xl border border-white/20 text-white',
+    primary: 'bg-gradient-to-br from-indigo-500/20 to-purple-600/20 backdrop-blur-xl border border-indigo-300/30 text-gray-900',
+    secondary: 'bg-gradient-to-br from-pink-500/20 to-rose-600/20 backdrop-blur-xl border border-pink-300/30 text-gray-900'
   };
 
-  const hoverEffect = hover ? 'hover:bg-white/15 hover:border-white/30 hover:shadow-elegant-lg hover:scale-[1.02]' : '';
+  const hoverEffect = hover ? 'hover:bg-white/90 hover:border-white/40 hover:shadow-lg hover:scale-[1.02]' : '';
 
   return (
     <div 
@@ -28,7 +28,7 @@ const GlassmorphicCard: React.FC<GlassmorphicCardProps> = ({
         ${variants[variant]}
         ${hoverEffect}
         rounded-2xl 
-        shadow-elegant
+        shadow-lg
         transition-all 
         duration-300 
         ease-out
