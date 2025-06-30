@@ -1,27 +1,46 @@
 import React from 'react';
-import { Settings, Award, TrendingUp, Calendar, Package, Star } from 'lucide-react';
+import { Settings, Award, TrendingUp, Calendar, Package, Star, Crown, Shield, Eye } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import GlassmorphicCard from '../components/GlassmorphicCard';
 import NeuomorphicButton from '../components/NeuomorphicButton';
 import ProgressRing from '../components/ui/ProgressRing';
 import StatusIndicator from '../components/ui/StatusIndicator';
+import PermissionGate from '../components/rbac/PermissionGate';
 
 const Profile = () => {
-  const { currentUser, currentLoop } = useApp();
+  const { currentUser, currentLoop, isAdmin } = useApp();
 
   if (!currentUser || !currentLoop) {
     return <div>Loading...</div>;
   }
 
-  const userItems = currentLoop.items.filter(item => item.owner === currentUser.id);
-  const userEvents = currentLoop.events.filter(event => event.organizer === currentUser.id);
-  const borrowedItems = currentLoop.items.filter(item => item.borrower === currentUser.id);
+  const userItems = currentLoop.items.filter(item => item.owner_id === currentUser.id);
+  const userEvents = currentLoop.events.filter(event => event.organizer_id === currentUser.id);
+  const borrowedItems = currentLoop.items.filter(item => item.borrower_id === currentUser.id);
 
   const getReputationLevel = (reputation: number) => {
     if (reputation >= 90) return { level: 'Excellent', color: 'success', gradient: 'from-emerald-500 to-green-500' };
     if (reputation >= 75) return { level: 'Good', color: 'info', gradient: 'from-blue-500 to-cyan-500' };
     if (reputation >= 50) return { level: 'Fair', color: 'warning', gradient: 'from-amber-500 to-orange-500' };
     return { level: 'New', color: 'error', gradient: 'from-gray-500 to-gray-600' };
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'admin': return <Crown className="w-5 h-5 text-amber-600" />;
+      case 'member': return <Shield className="w-5 h-5 text-blue-600" />;
+      case 'viewer': return <Eye className="w-5 h-5 text-gray-600" />;
+      default: return <Shield className="w-5 h-5 text-blue-600" />;
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-amber-100 text-amber-800';
+      case 'member': return 'bg-blue-100 text-blue-800';
+      case 'viewer': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const reputationInfo = getReputationLevel(currentUser.reputation);
@@ -32,12 +51,19 @@ const Profile = () => {
       <GlassmorphicCard className="p-8">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-6">
-            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-3xl flex items-center justify-center text-4xl shadow-elegant">
+            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 rounded-3xl flex items-center justify-center text-4xl shadow-lg">
               {currentUser.avatar}
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{currentUser.name}</h1>
-              <p className="text-gray-600 capitalize font-medium text-lg">{currentUser.role} • {currentLoop.name}</p>
+              <div className="flex items-center space-x-3">
+                <p className="text-gray-600 capitalize font-medium text-lg">{currentLoop.name}</p>
+                {/* Role Badge */}
+                <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${getRoleColor(currentUser.role)}`}>
+                  {getRoleIcon(currentUser.role)}
+                  <span className="text-sm font-semibold capitalize">{currentUser.role}</span>
+                </div>
+              </div>
               <p className="text-sm text-gray-500 mt-1">{currentUser.email}</p>
               <div className="flex items-center space-x-2 mt-2">
                 <StatusIndicator status="online" size="sm" showLabel />
@@ -60,7 +86,7 @@ const Profile = () => {
                 color={reputationInfo.color as any}
                 showLabel 
               />
-              <div className={`px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r ${reputationInfo.gradient} text-white shadow-elegant`}>
+              <div className={`px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r ${reputationInfo.gradient} text-white shadow-lg`}>
                 {reputationInfo.level}
               </div>
             </div>
@@ -88,7 +114,7 @@ const Profile = () => {
           </h2>
           <div className="flex flex-wrap gap-4">
             {currentUser.badges.map((badge, index) => (
-              <div key={index} className="bg-gradient-to-r from-amber-400 to-orange-400 text-white px-5 py-3 rounded-2xl text-sm font-semibold flex items-center space-x-2 shadow-elegant hover:scale-105 transition-transform">
+              <div key={index} className="bg-gradient-to-r from-amber-400 to-orange-400 text-white px-5 py-3 rounded-2xl text-sm font-semibold flex items-center space-x-2 shadow-lg hover:scale-105 transition-transform">
                 <Star className="w-4 h-4" />
                 <span>{badge}</span>
               </div>
@@ -100,7 +126,7 @@ const Profile = () => {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-6">
         <GlassmorphicCard className="p-6 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-elegant">
+          <div className="w-16 h-16 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Package className="w-8 h-8 text-white" />
           </div>
           <p className="text-3xl font-bold text-gray-900">{userItems.length}</p>
@@ -108,7 +134,7 @@ const Profile = () => {
         </GlassmorphicCard>
 
         <GlassmorphicCard className="p-6 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-elegant">
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Calendar className="w-8 h-8 text-white" />
           </div>
           <p className="text-3xl font-bold text-gray-900">{userEvents.length}</p>
@@ -116,13 +142,40 @@ const Profile = () => {
         </GlassmorphicCard>
 
         <GlassmorphicCard className="p-6 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-elegant">
+          <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <TrendingUp className="w-8 h-8 text-white" />
           </div>
           <p className="text-3xl font-bold text-gray-900">{borrowedItems.length}</p>
           <p className="text-sm text-gray-600 font-medium">Items Borrowed</p>
         </GlassmorphicCard>
       </div>
+
+      {/* Admin Section */}
+      <PermissionGate role="admin">
+        <GlassmorphicCard className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50">
+          <div className="flex items-center space-x-3 mb-4">
+            <Crown className="w-6 h-6 text-amber-600" />
+            <h2 className="text-xl font-bold text-amber-900">Admin Controls</h2>
+          </div>
+          <p className="text-amber-800 mb-4">
+            As an admin, you have full control over this loop. You can manage members, settings, and content.
+          </p>
+          <div className="grid grid-cols-2 gap-4">
+            <NeuomorphicButton variant="secondary" className="w-full">
+              <div className="flex items-center justify-center space-x-2">
+                <Users className="w-5 h-5 text-amber-700" />
+                <span className="text-amber-900">Manage Members</span>
+              </div>
+            </NeuomorphicButton>
+            <NeuomorphicButton variant="secondary" className="w-full">
+              <div className="flex items-center justify-center space-x-2">
+                <Settings className="w-5 h-5 text-amber-700" />
+                <span className="text-amber-900">Loop Settings</span>
+              </div>
+            </NeuomorphicButton>
+          </div>
+        </GlassmorphicCard>
+      </PermissionGate>
 
       {/* My Items */}
       {userItems.length > 0 && (
@@ -160,14 +213,14 @@ const Profile = () => {
           <h2 className="font-bold text-amber-900 mb-6 text-xl">Currently Borrowed</h2>
           <div className="space-y-4">
             {borrowedItems.map((item) => {
-              const owner = currentLoop.members.find(m => m.id === item.owner);
+              const owner = currentLoop.members.find(m => m.id === item.owner_id);
               return (
                 <div key={item.id} className="flex items-center space-x-4 p-4 bg-white/70 rounded-2xl">
                   <div className="text-3xl">{item.image}</div>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900">{item.title}</p>
                     <p className="text-sm text-gray-600">
-                      From {owner?.name} • Due {item.dueDate ? new Date(item.dueDate).toLocaleDateString() : 'N/A'}
+                      From {owner?.name} • Due {item.due_date ? new Date(item.due_date).toLocaleDateString() : 'N/A'}
                     </p>
                   </div>
                 </div>

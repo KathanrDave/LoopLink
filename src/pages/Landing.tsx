@@ -28,7 +28,24 @@ const Landing = () => {
       gradient: 'from-purple-400 via-pink-400 to-rose-400',
       bgGradient: 'from-purple-50 via-pink-50 to-rose-50',
       iconColor: 'text-purple-600',
-      stats: '2.3M+ friend groups'
+      stats: '2.3M+ friend groups',
+      examples: [
+        {
+          name: 'College Buddies',
+          description: 'Stay connected with your university friends, plan reunions, and share memories',
+          members: 8
+        },
+        {
+          name: 'Book Club Friends',
+          description: 'Coordinate monthly meetings, share reading lists, and discuss favorite books',
+          members: 12
+        },
+        {
+          name: 'Travel Squad',
+          description: 'Plan trips together, share travel tips, and coordinate group adventures',
+          members: 6
+        }
+      ]
     },
     {
       type: 'neighborhood',
@@ -40,7 +57,24 @@ const Landing = () => {
       gradient: 'from-emerald-400 via-teal-400 to-cyan-400',
       bgGradient: 'from-emerald-50 via-teal-50 to-cyan-50',
       iconColor: 'text-emerald-600',
-      stats: '850K+ neighborhoods'
+      stats: '850K+ neighborhoods',
+      examples: [
+        {
+          name: 'Riverside Community',
+          description: 'Connect with neighbors, organize block parties, and share community resources',
+          members: 45
+        },
+        {
+          name: 'Downtown Residents',
+          description: 'Stay updated on local events, share parking tips, and build urban connections',
+          members: 78
+        },
+        {
+          name: 'Sunset Hills HOA',
+          description: 'Coordinate neighborhood improvements, manage shared spaces, and plan community events',
+          members: 120
+        }
+      ]
     },
     {
       type: 'organization',
@@ -52,7 +86,24 @@ const Landing = () => {
       gradient: 'from-blue-400 via-indigo-400 to-violet-400',
       bgGradient: 'from-blue-50 via-indigo-50 to-violet-50',
       iconColor: 'text-blue-600',
-      stats: '125K+ organizations'
+      stats: '125K+ organizations',
+      examples: [
+        {
+          name: 'TechCorp Engineering',
+          description: 'Streamline team communication, share technical resources, and coordinate projects',
+          members: 35
+        },
+        {
+          name: 'Greenfield Marketing',
+          description: 'Collaborate on campaigns, share creative assets, and track marketing performance',
+          members: 18
+        },
+        {
+          name: 'City Hospital Staff',
+          description: 'Coordinate shifts, share medical resources, and build healthcare community',
+          members: 150
+        }
+      ]
     }
   ];
 
@@ -157,7 +208,7 @@ const Landing = () => {
               <span className="text-white font-bold text-xl">L</span>
             </div>
             <div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              <span className="text-3xl font-bold text-white">
                 LoopLink
               </span>
               <span className="text-sm text-purple-300 ml-2 font-medium">2.0</span>
@@ -183,7 +234,7 @@ const Landing = () => {
           <div className="space-y-12">
             <div className="space-y-8">
               <h1 className="text-6xl md:text-8xl font-bold leading-tight">
-                <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                <span className="text-white">
                   Create Your
                 </span>
                 <br />
@@ -234,7 +285,7 @@ const Landing = () => {
       <section id="features" className="relative z-10 px-6 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
+            <h2 className="text-5xl font-bold text-white mb-6">
               Choose Your Universe
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -249,9 +300,7 @@ const Landing = () => {
                 <GlassmorphicCard 
                   key={loop.type} 
                   className="p-8 hover:scale-105 transition-all duration-500 group"
-                  gradient="from-white/20 to-white/10"
-                  blur="lg"
-                  opacity={0.15}
+                  variant="dark"
                 >
                   <div className="space-y-8">
                     <div className="flex items-center space-x-4">
@@ -276,6 +325,23 @@ const Landing = () => {
                       ))}
                     </div>
 
+                    {/* Example Loops */}
+                    <div className="space-y-4">
+                      <h4 className="text-lg font-semibold text-white">Example Loops</h4>
+                      <div className="space-y-3">
+                        {loop.examples.map((example, i) => (
+                          <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 hover:bg-white/15 transition-colors">
+                            <p className="font-semibold text-white">{example.name}</p>
+                            <p className="text-xs text-gray-300 mt-1">{example.description}</p>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <Users className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-400">{example.members} members</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                     <NeuomorphicButton 
                       variant="primary" 
                       className={`w-full bg-gradient-to-r ${loop.gradient} hover:shadow-2xl`}
@@ -297,7 +363,7 @@ const Landing = () => {
       <section className="relative z-10 px-6 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
+            <h2 className="text-5xl font-bold text-white mb-6">
               Why LoopLink is Different
             </h2>
             <p className="text-xl text-gray-300">Built for authentic connections, not digital distractions</p>
@@ -310,9 +376,7 @@ const Landing = () => {
                 <GlassmorphicCard 
                   key={index} 
                   className="p-8 text-center hover:scale-105 transition-all duration-500 group"
-                  gradient="from-white/20 to-white/10"
-                  blur="lg"
-                  opacity={0.15}
+                  variant="dark"
                 >
                   <div className="space-y-6">
                     <div className={`w-20 h-20 bg-gradient-to-br ${feature.gradient} rounded-3xl flex items-center justify-center mx-auto shadow-2xl group-hover:scale-110 transition-transform duration-300`}>
@@ -332,7 +396,7 @@ const Landing = () => {
       <section id="testimonials" className="relative z-10 px-6 py-24">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-6">
+            <h2 className="text-5xl font-bold text-white mb-6">
               Stories of Connection
             </h2>
             <p className="text-xl text-gray-300">Real people, real communities, real impact</p>
@@ -341,9 +405,7 @@ const Landing = () => {
           <div className="relative">
             <GlassmorphicCard 
               className="p-12 text-center max-w-4xl mx-auto"
-              gradient="from-white/20 to-white/10"
-              blur="lg"
-              opacity={0.15}
+              variant="dark"
             >
               <div className="space-y-8">
                 <div className="flex items-center justify-center space-x-2">
@@ -392,12 +454,10 @@ const Landing = () => {
         <div className="max-w-5xl mx-auto text-center">
           <GlassmorphicCard 
             className="p-16"
-            gradient="from-white/20 to-white/10"
-            blur="lg"
-            opacity={0.15}
+            variant="dark"
           >
             <div className="space-y-10">
-              <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent leading-tight">
+              <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight">
                 Ready to Create Magic?
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">

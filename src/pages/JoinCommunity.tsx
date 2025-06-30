@@ -23,7 +23,24 @@ const JoinCommunity = () => {
       color: 'from-purple-500 to-pink-500',
       bgColor: 'bg-purple-50',
       borderColor: 'border-purple-200',
-      iconColor: 'text-purple-600'
+      iconColor: 'text-purple-600',
+      examples: [
+        {
+          name: 'College Buddies',
+          description: 'Stay connected with your university friends, plan reunions, and share memories',
+          members: 8
+        },
+        {
+          name: 'Book Club Friends',
+          description: 'Coordinate monthly meetings, share reading lists, and discuss favorite books',
+          members: 12
+        },
+        {
+          name: 'Travel Squad',
+          description: 'Plan trips together, share travel tips, and coordinate group adventures',
+          members: 6
+        }
+      ]
     },
     {
       type: 'neighborhood' as LoopType,
@@ -31,11 +48,28 @@ const JoinCommunity = () => {
       title: 'Neighborhood Loop',
       subtitle: 'Hyperlocal Focus',
       description: 'Location-based community for neighbors to share and connect locally',
-      features: ['Item sharing', 'Local events', 'Geographic radius', 'Community building'],
+      features: ['Resource circulation', 'Local event discovery', 'Geographic intelligence', 'Community resilience'],
       color: 'from-green-500 to-emerald-500',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
-      iconColor: 'text-green-600'
+      iconColor: 'text-green-600',
+      examples: [
+        {
+          name: 'Riverside Community',
+          description: 'Connect with neighbors, organize block parties, and share community resources',
+          members: 45
+        },
+        {
+          name: 'Downtown Residents',
+          description: 'Stay updated on local events, share parking tips, and build urban connections',
+          members: 78
+        },
+        {
+          name: 'Sunset Hills HOA',
+          description: 'Coordinate neighborhood improvements, manage shared spaces, and plan community events',
+          members: 120
+        }
+      ]
     },
     {
       type: 'organization' as LoopType,
@@ -47,7 +81,24 @@ const JoinCommunity = () => {
       color: 'from-blue-500 to-cyan-500',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
-      iconColor: 'text-blue-600'
+      iconColor: 'text-blue-600',
+      examples: [
+        {
+          name: 'TechCorp Engineering',
+          description: 'Streamline team communication, share technical resources, and coordinate projects',
+          members: 35
+        },
+        {
+          name: 'Greenfield Marketing',
+          description: 'Collaborate on campaigns, share creative assets, and track marketing performance',
+          members: 18
+        },
+        {
+          name: 'City Hospital Staff',
+          description: 'Coordinate shifts, share medical resources, and build healthcare community',
+          members: 150
+        }
+      ]
     }
   ];
 
@@ -130,34 +181,36 @@ const JoinCommunity = () => {
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
-                {loopTypes.map((type) => {
-                  const IconComponent = type.icon;
-                  const isSelected = selectedType === type.type;
+                {loopTypes.map((loop, index) => {
+                  const IconComponent = loop.icon;
+                  const isSelected = selectedType === loop.type;
                   
                   return (
                     <button
-                      key={type.type}
-                      onClick={() => setSelectedType(type.type)}
+                      key={loop.type}
+                      onClick={() => setSelectedType(loop.type)}
                       className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 text-left transition-all duration-200 transform hover:scale-105 border-2 hover:bg-white/20 ${
                         isSelected ? 'border-purple-400 ring-2 ring-purple-400/50 bg-white/20' : 'border-white/20'
                       }`}
                     >
                       <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 bg-gradient-to-br ${type.color} rounded-xl flex items-center justify-center shadow-lg`}>
+                          <div className={`w-10 h-10 bg-gradient-to-br ${loop.color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                             <IconComponent className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-white">{type.title}</h3>
-                            <p className="text-xs text-gray-300">{type.subtitle}</p>
+                            <h3 className="font-bold text-white">{loop.title}</h3>
+                            <p className="text-xs text-gray-300">{loop.subtitle}</p>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-300">{type.description}</p>
-                        <div className="space-y-1">
-                          {type.features.slice(0, 2).map((feature, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                              <span className="text-xs text-gray-400">{feature}</span>
+
+                        <p className="text-gray-300 leading-relaxed">{loop.description}</p>
+
+                        <div className="space-y-3">
+                          {loop.features.slice(0, 2).map((feature, featureIndex) => (
+                            <div key={featureIndex} className="flex items-center space-x-2">
+                              <div className={`w-1.5 h-1.5 bg-gradient-to-r ${loop.color} rounded-full`}></div>
+                              <span className="text-xs text-gray-300">{feature}</span>
                             </div>
                           ))}
                         </div>
@@ -243,6 +296,25 @@ const JoinCommunity = () => {
                 </form>
               </div>
             </div>
+
+            {/* Example Loops */}
+            {selectedLoopType && (
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/20">
+                <h3 className="font-bold text-white mb-4">Example {selectedLoopType.title}</h3>
+                <div className="space-y-3">
+                  {selectedLoopType.examples.map((example, i) => (
+                    <div key={i} className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/15 transition-colors">
+                      <p className="font-semibold text-white">{example.name}</p>
+                      <p className="text-sm text-gray-300 mt-1">{example.description}</p>
+                      <div className="flex items-center space-x-2 mt-2">
+                        <Users className="w-4 h-4 text-gray-400" />
+                        <span className="text-xs text-gray-400">{example.members} members</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
@@ -328,7 +400,7 @@ const JoinCommunity = () => {
 
         {/* Existing Loops */}
         {userLoops.length > 0 && (
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/20">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/20 mt-8">
             <h3 className="font-semibold text-white mb-4">Your Existing Loops</h3>
             <div className="space-y-3">
               {userLoops.slice(0, 3).map((loop) => {
@@ -339,7 +411,7 @@ const JoinCommunity = () => {
                     to="/app"
                     className="flex items-center space-x-3 p-3 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-200 border border-white/20"
                   >
-                    {loopType && <loopType.icon className={`w-6 h-6 text-${loopType.iconColor.split('-')[1]}-400`} />}
+                    {loopType && <loopType.icon className="w-6 h-6 text-white" />}
                     <div className="flex-1">
                       <p className="font-medium text-white">{loop.name}</p>
                       <p className="text-sm text-gray-300">{loop.members.length} members • {loop.type}</p>

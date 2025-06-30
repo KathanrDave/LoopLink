@@ -17,9 +17,17 @@ const ModalManager: React.FC = () => {
       }
     };
 
+    // Handle body overflow
+    if (activeModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
     window.addEventListener('keydown', handleEscKey);
     return () => {
       window.removeEventListener('keydown', handleEscKey);
+      document.body.style.overflow = 'auto';
     };
   }, [activeModal, closeModal]);
 

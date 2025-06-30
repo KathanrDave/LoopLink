@@ -54,7 +54,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       case 'item_shared':
         return (
           <>
-            <span className="font-medium">{data.userName}</span> shared{' '}
+            <span className="font-medium text-gray-900">{data.userName}</span> shared{' '}
             <Link to={`/app/item/${data.itemId}`} className="font-medium text-indigo-600 hover:text-indigo-700">
               {data.itemTitle}
             </Link>
@@ -63,7 +63,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       case 'item_borrowed':
         return (
           <>
-            <span className="font-medium">{data.borrowerName}</span> borrowed{' '}
+            <span className="font-medium text-gray-900">{data.borrowerName}</span> borrowed{' '}
             <Link to={`/app/item/${data.itemId}`} className="font-medium text-indigo-600 hover:text-indigo-700">
               {data.itemTitle}
             </Link>
@@ -72,7 +72,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       case 'item_returned':
         return (
           <>
-            <span className="font-medium">{data.borrowerName}</span> returned{' '}
+            <span className="font-medium text-gray-900">{data.borrowerName}</span> returned{' '}
             <Link to={`/app/item/${data.itemId}`} className="font-medium text-indigo-600 hover:text-indigo-700">
               {data.itemTitle}
             </Link>
@@ -81,7 +81,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       case 'event_created':
         return (
           <>
-            <span className="font-medium">{data.organizerName}</span> created event{' '}
+            <span className="font-medium text-gray-900">{data.organizerName}</span> created event{' '}
             <Link to={`/app/events`} className="font-medium text-emerald-600 hover:text-emerald-700">
               {data.eventTitle}
             </Link>
@@ -90,7 +90,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       case 'event_joined':
         return (
           <>
-            <span className="font-medium">{data.userName}</span> is attending{' '}
+            <span className="font-medium text-gray-900">{data.userName}</span> is attending{' '}
             <Link to={`/app/events`} className="font-medium text-emerald-600 hover:text-emerald-700">
               {data.eventTitle}
             </Link>
@@ -99,19 +99,19 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       case 'member_joined':
         return (
           <>
-            <span className="font-medium">{data.userName}</span> joined the loop
+            <span className="font-medium text-gray-900">{data.userName}</span> joined the loop
           </>
         );
       case 'message_sent':
         return (
           <>
-            <span className="font-medium">{data.userName}</span> sent a message
+            <span className="font-medium text-gray-900">{data.userName}</span> sent a message
           </>
         );
       case 'loop_updated':
         return (
           <>
-            <span className="font-medium">{data.userName}</span> updated loop settings
+            <span className="font-medium text-gray-900">{data.userName}</span> updated loop settings
           </>
         );
       default:

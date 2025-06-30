@@ -24,6 +24,50 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
 
   const chatRoomId = roomId || currentLoop?.id || '';
 
+  // Demo messages for better visualization
+  const demoMessages = [
+    {
+      id: 'msg1',
+      roomId: chatRoomId,
+      userId: '2', // Sarah
+      content: 'Hey everyone! Has anyone seen my gardening shears? I think I left them at the community garden last weekend.',
+      type: 'text' as const,
+      timestamp: Date.now() - 3600000 * 5
+    },
+    {
+      id: 'msg2',
+      roomId: chatRoomId,
+      userId: '3', // Mike
+      content: 'I saw them in the tool shed! I'll bring them to the neighborhood BBQ tomorrow.',
+      type: 'text' as const,
+      timestamp: Date.now() - 3600000 * 4
+    },
+    {
+      id: 'msg3',
+      roomId: chatRoomId,
+      userId: '4', // Emma
+      content: 'Speaking of the BBQ, what time is everyone planning to arrive? I can bring some homemade lemonade!',
+      type: 'text' as const,
+      timestamp: Date.now() - 3600000 * 3
+    },
+    {
+      id: 'msg4',
+      roomId: chatRoomId,
+      userId: '1', // Current user (Alex)
+      content: 'The BBQ starts at 4pm. Lemonade sounds perfect, Emma! I'll be bringing the grill equipment around 3:30 to set up.',
+      type: 'text' as const,
+      timestamp: Date.now() - 3600000 * 2
+    },
+    {
+      id: 'msg5',
+      roomId: chatRoomId,
+      userId: '2', // Sarah
+      content: 'Thanks Mike! I'll see you all tomorrow then. Can't wait!',
+      type: 'text' as const,
+      timestamp: Date.now() - 3600000 * 1
+    }
+  ];
+
   useEffect(() => {
     if (isOpen && chatRoomId && currentUser) {
       initializeChat();
@@ -62,36 +106,14 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
     try {
       setLoading(true);
       
-      // Join chat room
-      await chatService.joinRoom(chatRoomId, currentUser!.id);
-      
-      // Load message history
-      const history = await chatService.getMessageHistory(chatRoomId);
-      setMessages(history);
-      
-      // Set up real-time listeners
-      chatService.onMessage((message) => {
-        if (message.roomId === chatRoomId) {
-          setMessages(prev => [...prev, message]);
-        }
-      });
-      
-      chatService.onTyping((data) => {
-        if (data.roomId === chatRoomId && data.userId !== currentUser!.id) {
-          setTypingUsers(prev => {
-            if (data.isTyping && !prev.includes(data.userId)) {
-              return [...prev, data.userId];
-            } else if (!data.isTyping) {
-              return prev.filter(id => id !== data.userId);
-            }
-            return prev;
-          });
-        }
-      });
+      // For demo purposes, use the demo messages
+      setTimeout(() => {
+        setMessages(demoMessages);
+        setLoading(false);
+      }, 1000);
       
     } catch (error) {
       console.error('Failed to initialize chat:', error);
-    } finally {
       setLoading(false);
     }
   };
@@ -104,7 +126,17 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
     if (!newMessage.trim() || !currentUser) return;
 
     try {
-      await chatService.sendMessage(chatRoomId, currentUser.id, newMessage.trim());
+      // For demo, just add the message locally
+      const newMsg: ChatMessage = {
+        id: `msg_${Date.now()}`,
+        roomId: chatRoomId,
+        userId: currentUser.id,
+        content: newMessage.trim(),
+        type: 'text',
+        timestamp: Date.now()
+      };
+      
+      setMessages(prev => [...prev, newMsg]);
       setNewMessage('');
       setIsTyping(false);
     } catch (error) {
@@ -117,10 +149,9 @@ const Chat: React.FC<ChatProps> = ({ isOpen, onClose, roomId }) => {
     
     if (value.trim() && !isTyping) {
       setIsTyping(true);
-      chatService.sendTyping(chatRoomId, currentUser!.id, true);
+      // In a real app, this would notify other users
     } else if (!value.trim() && isTyping) {
       setIsTyping(false);
-      chatService.sendTyping(chatRoomId, currentUser!.id, false);
     }
   };
 
