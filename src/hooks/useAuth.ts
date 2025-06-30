@@ -1,142 +1,99 @@
-import { useState, useEffect, useCallback } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { useState, useEffect } from 'react'
+import { User, Session, AuthError } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  avatar: string;
-  reputation: number;
-  badges: string[];
-  subscriptionTier: 'free' | 'pro' | 'enterprise';
-  location?: {
-    lat: number;
-    lng: number;
-    address: string;
-  };
+export interface AuthState {
+  user: User | null
+  session: Session | null
+  loading: boolean
+  error: string | null
+}
+
+export interface SignUpData {
+  email: string
+  password: string
+  name: string
+}
+
+export interface SignInData {
+  email: string
+  password: string
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false);
-
-  const fetchUserProfile = useCallback(async (authUser: User) => {
-    try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', authUser.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        if (error.code === 'PGRST116') {
-          console.log('Profile not found, will be created by trigger');
-          setTimeout(() => fetchUserProfile(authUser), 1000);
-          return;
-        }
-        setLoading(false);
-        return;
-      }
-
-      if (profile) {
-        setUser({
-          id: profile.id,
-          email: profile.email,
-          name: profile.name,
-          avatar: profile.avatar,
-          reputation: profile.reputation,
-          badges: profile.badges || [],
-          subscriptionTier: profile.subscription_tier,
-          location: profile.location
-        });
-      }
-    } catch (error) {
-      console.error('Error in fetchUserProfile:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [state, setState] = useState<AuthState>({
+    user: null,
+    session: null,
+    loading: true,
+    error: null
+  })
 
   useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error getting session:', error);
-          if (mounted) {
-            setLoading(false);
-            setInitialized(true);
-          }
-          return;
-        }
-
-        if (mounted) {
-          setSession(session);
-          if (session?.user) {
-            await fetchUserProfile(session.user);
-          } else {
-            setLoading(false);
-          }
-          setInitialized(true);
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-        if (mounted) {
-          setLoading(false);
-          setInitialized(true);
-        }
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Error getting session:', error)
+        setState(prev => ({ ...prev, error: error.message, loading: false }))
+      } else {
+        setState(prev => ({ 
+          ...prev, 
+          session, 
+          user: session?.user ?? null, 
+          loading: false 
+        }))
       }
-    };
+    })
 
-    initializeAuth();
-
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
+        console.log('Auth state changed:', event, session?.user?.email)
         
-        if (!mounted) return;
+        setState(prev => ({ 
+          ...prev, 
+          session, 
+          user: session?.user ?? null, 
+          loading: false,
+          error: null
+        }))
 
-        setSession(session);
-        
-        if (session?.user) {
-          await fetchUserProfile(session.user);
-        } else {
-          setUser(null);
-          setLoading(false);
+        // Create profile when user signs up
+        if (event === 'SIGNED_UP' && session?.user) {
+          await createUserProfile(session.user)
         }
       }
-    );
+    )
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [fetchUserProfile]);
+    return () => subscription.unsubscribe()
+  }, [])
 
-  const signInWithEmail = async (email: string, password: string) => {
+  const createUserProfile = async (user: User) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      if (error) throw error;
+      const { error } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email!,
+          name: user.user_metadata?.name || user.email!.split('@')[0],
+          avatar: '👤',
+          reputation: 50,
+          badges: [],
+          subscription_tier: 'free'
+        })
+
+      if (error && error.code !== '23505') { // Ignore duplicate key errors
+        console.error('Error creating profile:', error)
+      }
     } catch (error) {
-      console.error('Error signing in with email:', error);
-      throw error;
+      console.error('Error creating profile:', error)
     }
-  };
+  }
 
-  const signUpWithEmail = async (email: string, password: string, name: string) => {
+  const signUp = async ({ email, password, name }: SignUpData) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      setState(prev => ({ ...prev, loading: true, error: null }))
+      
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -144,53 +101,97 @@ export function useAuth() {
             name
           }
         }
-      });
-      
-      if (error) throw error;
+      })
+
+      if (error) {
+        setState(prev => ({ ...prev, error: error.message, loading: false }))
+        return { data: null, error }
+      }
+
+      setState(prev => ({ ...prev, loading: false }))
+      return { data, error: null }
     } catch (error) {
-      console.error('Error signing up:', error);
-      throw error;
+      const message = error instanceof Error ? error.message : 'An error occurred'
+      setState(prev => ({ ...prev, error: message, loading: false }))
+      return { data: null, error: { message } as AuthError }
     }
-  };
+  }
+
+  const signIn = async ({ email, password }: SignInData) => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }))
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (error) {
+        setState(prev => ({ ...prev, error: error.message, loading: false }))
+        return { data: null, error }
+      }
+
+      setState(prev => ({ ...prev, loading: false }))
+      return { data, error: null }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'An error occurred'
+      setState(prev => ({ ...prev, error: message, loading: false }))
+      return { data: null, error: { message } as AuthError }
+    }
+  }
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      setState(prev => ({ ...prev, loading: true, error: null }))
+      
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        setState(prev => ({ ...prev, error: error.message, loading: false }))
+        return { error }
+      }
+
+      setState(prev => ({ 
+        ...prev, 
+        user: null, 
+        session: null, 
+        loading: false 
+      }))
+      return { error: null }
     } catch (error) {
-      console.error('Error signing out:', error);
-      throw error;
+      const message = error instanceof Error ? error.message : 'An error occurred'
+      setState(prev => ({ ...prev, error: message, loading: false }))
+      return { error: { message } as AuthError }
     }
-  };
+  }
 
-  const updateProfile = async (updates: Partial<AuthUser>) => {
-    if (!user) return;
-
+  const resetPassword = async (email: string) => {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
+      setState(prev => ({ ...prev, loading: true, error: null }))
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
 
-      if (error) throw error;
+      if (error) {
+        setState(prev => ({ ...prev, error: error.message, loading: false }))
+        return { error }
+      }
 
-      setUser({ ...user, ...updates });
+      setState(prev => ({ ...prev, loading: false }))
+      return { error: null }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
+      const message = error instanceof Error ? error.message : 'An error occurred'
+      setState(prev => ({ ...prev, error: message, loading: false }))
+      return { error: { message } as AuthError }
     }
-  };
+  }
 
   return {
-    user,
-    session,
-    loading: loading && !initialized,
-    signInWithEmail,
-    signUpWithEmail,
+    ...state,
+    signUp,
+    signIn,
     signOut,
-    updateProfile
-  };
+    resetPassword
+  }
 }

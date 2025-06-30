@@ -21,18 +21,27 @@ function App() {
       <Router>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/auth" element={<Auth />} />
-          
-          {/* Protected routes */}
-          <Route path="/join" element={
-            <AuthGuard>
-              <JoinCommunity />
+          <Route path="/" element={
+            <AuthGuard requireAuth={false}>
+              <Landing />
             </AuthGuard>
           } />
           
+          <Route path="/auth" element={
+            <AuthGuard requireAuth={false}>
+              <Auth />
+            </AuthGuard>
+          } />
+          
+          <Route path="/join" element={
+            <AuthGuard requireAuth={false}>
+              <JoinCommunity />
+            </AuthGuard>
+          } />
+
+          {/* Protected routes */}
           <Route path="/app" element={
-            <AuthGuard>
+            <AuthGuard requireAuth={true}>
               <Layout />
             </AuthGuard>
           }>
