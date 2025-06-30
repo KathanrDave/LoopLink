@@ -33,10 +33,8 @@ export function useAuth() {
 
       if (error) {
         console.error('Error fetching profile:', error);
-        // If profile doesn't exist, create it
         if (error.code === 'PGRST116') {
           console.log('Profile not found, will be created by trigger');
-          // Wait a moment for the trigger to create the profile
           setTimeout(() => fetchUserProfile(authUser), 1000);
           return;
         }
@@ -68,7 +66,6 @@ export function useAuth() {
 
     const initializeAuth = async () => {
       try {
-        // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -100,7 +97,6 @@ export function useAuth() {
 
     initializeAuth();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
@@ -123,22 +119,6 @@ export function useAuth() {
       subscription.unsubscribe();
     };
   }, [fetchUserProfile]);
-
-  const signInWithGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/app`
-        }
-      });
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-      throw error;
-    }
-  };
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
@@ -208,7 +188,6 @@ export function useAuth() {
     user,
     session,
     loading: loading && !initialized,
-    signInWithGoogle,
     signInWithEmail,
     signUpWithEmail,
     signOut,
