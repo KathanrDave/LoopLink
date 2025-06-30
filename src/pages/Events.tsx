@@ -13,18 +13,19 @@ const Events = () => {
     return <div>Loading...</div>;
   }
 
-  const handleJoinEvent = (eventId: string) => {
-    if (!currentLoop.events.find(e => e.id === eventId)?.attendees.includes(currentUser.id)) {
-      joinEvent(eventId, currentUser.id);
+  const handleJoinEvent = async (eventId: string) => {
+    const event = currentLoop.events.find(e => e.id === eventId);
+    if (!event?.attendees?.includes(currentUser.id)) {
+      await joinEvent(eventId);
     }
   };
 
   const isEventFull = (event: any) => {
-    return event.maxAttendees && event.attendees.length >= event.maxAttendees;
+    return event.max_attendees && event.attendees?.length >= event.max_attendees;
   };
 
   const isUserAttending = (event: any) => {
-    return event.attendees.includes(currentUser.id);
+    return event.attendees?.includes(currentUser.id);
   };
 
   const getLoopGradient = (type: string) => {
@@ -51,7 +52,7 @@ const Events = () => {
       {/* Events List */}
       <div className="space-y-4">
         {currentLoop.events.map((event) => {
-          const organizer = currentLoop.members.find(member => member.id === event.organizer);
+          const organizer = currentLoop.members.find(member => member.id === event.organizer_id);
           const attending = isUserAttending(event);
           const full = isEventFull(event);
 
@@ -94,8 +95,8 @@ const Events = () => {
                     <Users className="w-5 h-5 text-amber-600" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">
-                        {event.attendees.length}
-                        {event.maxAttendees && `/${event.maxAttendees}`}
+                        {event.attendees?.length || 0}
+                        {event.max_attendees && `/${event.max_attendees}`}
                       </p>
                       <p className="text-xs text-gray-600">Attending</p>
                     </div>
@@ -116,7 +117,7 @@ const Events = () => {
                 </div>
 
                 {/* Attendees Preview */}
-                {event.attendees.length > 0 && (
+                {event.attendees && event.attendees.length > 0 && (
                   <div className="flex items-center space-x-3">
                     <div className="flex -space-x-2">
                       {event.attendees.slice(0, 5).map((attendeeId) => {

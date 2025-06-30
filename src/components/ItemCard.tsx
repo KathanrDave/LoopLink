@@ -2,18 +2,17 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, User } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { Item } from '../context/AppContext';
 
 interface ItemCardProps {
-  item: Item;
+  item: any;
   compact?: boolean;
 }
 
 const ItemCard: React.FC<ItemCardProps> = ({ item, compact = false }) => {
-  const { currentCommunity } = useApp();
+  const { currentLoop } = useApp();
   
-  const owner = currentCommunity?.members.find(member => member.id === item.owner);
-  const borrower = item.borrower ? currentCommunity?.members.find(member => member.id === item.borrower) : null;
+  const owner = currentLoop?.members.find(member => member.id === item.owner_id);
+  const borrower = item.borrower_id ? currentLoop?.members.find(member => member.id === item.borrower_id) : null;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -61,10 +60,10 @@ const ItemCard: React.FC<ItemCardProps> = ({ item, compact = false }) => {
               <User className="w-3 h-3" />
               <span>{owner?.name}</span>
             </div>
-            {item.status === 'borrowed' && item.dueDate && (
+            {item.status === 'borrowed' && item.due_date && (
               <div className="flex items-center space-x-1">
                 <Clock className="w-3 h-3" />
-                <span>Due {new Date(item.dueDate).toLocaleDateString()}</span>
+                <span>Due {new Date(item.due_date).toLocaleDateString()}</span>
               </div>
             )}
           </div>

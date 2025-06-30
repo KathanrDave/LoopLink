@@ -21,10 +21,10 @@ const ItemDetail = () => {
     return <div>Item not found</div>;
   }
 
-  const owner = currentLoop.members.find(member => member.id === item.owner);
-  const borrower = item.borrower ? currentLoop.members.find(member => member.id === item.borrower) : null;
-  const isOwner = item.owner === currentUser.id;
-  const isBorrower = item.borrower === currentUser.id;
+  const owner = currentLoop.members.find(member => member.id === item.owner_id);
+  const borrower = item.borrower_id ? currentLoop.members.find(member => member.id === item.borrower_id) : null;
+  const isOwner = item.owner_id === currentUser.id;
+  const isBorrower = item.borrower_id === currentUser.id;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -35,24 +35,24 @@ const ItemDetail = () => {
     }
   };
 
-  const handleBorrow = () => {
+  const handleBorrow = async () => {
     if (item.status === 'available') {
       const dueDate = new Date();
       dueDate.setDate(dueDate.getDate() + 14); // 2 weeks from now
       
-      updateItem(item.id, {
+      await updateItem(item.id, {
         status: 'borrowed',
-        borrower: currentUser.id,
-        dueDate: dueDate.toISOString().split('T')[0]
+        borrower_id: currentUser.id,
+        due_date: dueDate.toISOString().split('T')[0]
       });
     }
   };
 
-  const handleReturn = () => {
-    updateItem(item.id, {
+  const handleReturn = async () => {
+    await updateItem(item.id, {
       status: 'available',
-      borrower: undefined,
-      dueDate: undefined
+      borrower_id: null,
+      due_date: null
     });
   };
 
@@ -117,7 +117,7 @@ const ItemDetail = () => {
             </div>
             <div className="p-3 bg-white/50 rounded-xl">
               <p className="text-gray-600 text-sm">Added</p>
-              <p className="font-bold text-gray-900">{new Date(item.createdAt).toLocaleDateString()}</p>
+              <p className="font-bold text-gray-900">{new Date(item.created_at).toLocaleDateString()}</p>
             </div>
           </div>
         </GlassmorphicCard>
@@ -149,10 +149,10 @@ const ItemDetail = () => {
               </div>
               <div className="flex-1">
                 <p className="font-bold text-amber-900">{borrower.name}</p>
-                {item.dueDate && (
+                {item.due_date && (
                   <div className="flex items-center space-x-1 text-sm text-amber-700">
                     <Clock className="w-3 h-3" />
-                    <span>Due {new Date(item.dueDate).toLocaleDateString()}</span>
+                    <span>Due {new Date(item.due_date).toLocaleDateString()}</span>
                   </div>
                 )}
               </div>
